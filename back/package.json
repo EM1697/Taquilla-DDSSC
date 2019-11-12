@@ -1,12 +1,16 @@
 {
   "name": "taquilla",
   "version": "1.0.0",
-  "description": "",
+  "description": "Box office for cinema school project",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/EM1697/PrototipoAutomatizacion"
+  },
+  "author": "Bustillo, Gamez, Kike",
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1"
