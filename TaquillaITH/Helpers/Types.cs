@@ -41,4 +41,16 @@ namespace CineTaquilla.Helpers
         [Display(Name = "Boleto 3D")]
         Ticket3D = 1,
     }
+
+    public enum SeatStatus
+    {
+        [Display(Name = "Libre")]
+        Free = 0,
+
+        [Display(Name = "Ocupado")]
+        Taken = 1,
+
+        [Display(Name = "Bloqueado")]
+        Blocked = 2
+    }
 }

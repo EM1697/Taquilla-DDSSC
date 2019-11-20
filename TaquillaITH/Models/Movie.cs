@@ -8,5 +8,7 @@ namespace TaquillaITH.Models
     public class Movie : Model
     {
         public string Name { get; set; }
+        public virtual TheatreRoom TheatreRoom { get; set; }
+        public string Schedule { get; set; }
     }
 }
