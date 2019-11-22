@@ -12,6 +12,10 @@ namespace TaquillaITH.Models
         public string Time { get; set; }
         public int? UserId { get; set; }
         public TicketType TipoBoletoId { get; set; }
+        public DateTime SaleDate { get; set; }
+        public virtual Payment Payment { get; set; }
+        public int? DaySalesId { get; set; }
+        public virtual DaySales DaySales { get; set; }
     }
 }
 
