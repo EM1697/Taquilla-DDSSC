@@ -7,6 +7,6 @@ namespace TaquillaITH.Models
     public class TheatreRoom : Model
     {
         public string Name { get; set; }
-        public Dictionary<string, SeatStatus> Seats { get; set; }
+        public List<Seat> Seats { get; set; }
     }
 }

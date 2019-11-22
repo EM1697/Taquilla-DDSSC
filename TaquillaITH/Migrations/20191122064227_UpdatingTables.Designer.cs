@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaquillaITH.Data;
 
 namespace TaquillaITH.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191122064227_UpdatingTables")]
+    partial class UpdatingTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,7 +79,12 @@ namespace TaquillaITH.Migrations
                     b.Property<string>("Schedule")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("TheatreRoomId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("TheatreRoomId");
 
                     b.ToTable("Movies");
                 });
@@ -163,8 +170,14 @@ namespace TaquillaITH.Migrations
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("MovieId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("SaleId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -174,43 +187,13 @@ namespace TaquillaITH.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TheatreRoomId");
-
-                    b.ToTable("Seats");
-                });
-
-            modelBuilder.Entity("TaquillaITH.Models.Show", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("MovieId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ShowTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("TheatreRoomId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
                     b.HasIndex("MovieId");
 
+                    b.HasIndex("SaleId");
+
                     b.HasIndex("TheatreRoomId");
 
-                    b.ToTable("Shows");
+                    b.ToTable("Seat");
                 });
 
             modelBuilder.Entity("TaquillaITH.Models.TheatreRoom", b =>
@@ -237,6 +220,13 @@ namespace TaquillaITH.Migrations
                     b.ToTable("TheatreRooms");
                 });
 
+            modelBuilder.Entity("TaquillaITH.Models.Movie", b =>
+                {
+                    b.HasOne("TaquillaITH.Models.TheatreRoom", "TheatreRoom")
+                        .WithMany()
+                        .HasForeignKey("TheatreRoomId");
+                });
+
             modelBuilder.Entity("TaquillaITH.Models.Sale", b =>
                 {
                     b.HasOne("TaquillaITH.Models.Movie", "Movie")
@@ -246,24 +236,17 @@ namespace TaquillaITH.Migrations
 
             modelBuilder.Entity("TaquillaITH.Models.Seat", b =>
                 {
+                    b.HasOne("TaquillaITH.Models.Movie", "Movie")
+                        .WithMany()
+                        .HasForeignKey("MovieId");
+
+                    b.HasOne("TaquillaITH.Models.Sale", null)
+                        .WithMany("Seats")
+                        .HasForeignKey("SaleId");
+
                     b.HasOne("TaquillaITH.Models.TheatreRoom", null)
                         .WithMany("Seats")
                         .HasForeignKey("TheatreRoomId");
-                });
-
-            modelBuilder.Entity("TaquillaITH.Models.Show", b =>
-                {
-                    b.HasOne("TaquillaITH.Models.Movie", "Movie")
-                        .WithMany()
-                        .HasForeignKey("MovieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TaquillaITH.Models.TheatreRoom", "TheatreRoom")
-                        .WithMany()
-                        .HasForeignKey("TheatreRoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

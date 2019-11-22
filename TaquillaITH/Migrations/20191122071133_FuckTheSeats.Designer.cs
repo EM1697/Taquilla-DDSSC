@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaquillaITH.Data;
 
 namespace TaquillaITH.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191122071133_FuckTheSeats")]
+    partial class FuckTheSeats
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -176,7 +178,7 @@ namespace TaquillaITH.Migrations
 
                     b.HasIndex("TheatreRoomId");
 
-                    b.ToTable("Seats");
+                    b.ToTable("Seat");
                 });
 
             modelBuilder.Entity("TaquillaITH.Models.Show", b =>
@@ -210,7 +212,7 @@ namespace TaquillaITH.Migrations
 
                     b.HasIndex("TheatreRoomId");
 
-                    b.ToTable("Shows");
+                    b.ToTable("Show");
                 });
 
             modelBuilder.Entity("TaquillaITH.Models.TheatreRoom", b =>
