@@ -18,6 +18,18 @@ namespace TaquillaITH.Controllers
             _apiServices = apiServices;
         }
 
+        // [HttpGet]
+        // public IEnumerable<Products> ListAllProducts()
+        // {
+        //     return products;
+        // }
+
+         [HttpGet("HolaMundo")]
+        public string holaMundo()
+        {
+            return "Hello World";
+        }
+
         //[HttpGet("GetTicketInfo")]
         ////metodo de api para registrar los ingresos de cortes de los departamentos
         //public Task<IActionResult> IncomeRegister()

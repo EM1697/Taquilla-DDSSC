@@ -8,7 +8,7 @@ namespace TaquillaITH.Models
     public class DaySales : Model
     {
         public int MovieId { get; set; }
-        public string Description { get; set; }
+        public string Description { get; set; } 
 
         public int NomalTicketsCount { get; set; }
         public decimal NomalTicketsAmount { get; set; }
