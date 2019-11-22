@@ -10,8 +10,7 @@ namespace TaquillaITH.Models
     {
         public string Name { get; set; }
 
-        
-        public string status { get; set; }
+        public SeatStatus Status { get; set; }
 
     }
 }

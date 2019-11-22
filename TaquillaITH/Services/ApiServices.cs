@@ -16,5 +16,18 @@ namespace TaquillaITH.Services
         {
             _db = db;
         }
+
+        public List<Seat> GetShowSeats()
+        {
+            try
+           {
+               var model = _db.Seats.Where(x => !x.IsDeleted).ToList();
+               return model;
+           }
+           catch (Exception ex)
+           {
+               return null;
+           }
+        }
     }
 }

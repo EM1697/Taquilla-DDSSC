@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TaquillaITH.Services;
+using Microsoft.AspNetCore.Cors;
+using TaquillaITH.Models;
 
 namespace TaquillaITH.Controllers
 {
@@ -18,16 +20,32 @@ namespace TaquillaITH.Controllers
             _apiServices = apiServices;
         }
 
-        // [HttpGet]
-        // public IEnumerable<Products> ListAllProducts()
+        //[HttpGet("GetShowSeats")]
+        // public List<Seat> GetShowSeats()
         // {
-        //     return products;
+        //     try
+        //    {
+        //        var x = new List<Seat>();
+        //        return x;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest("El registro de corte en finanzas falló debido a: " + ex.Message);
+        //    }
         // }
 
-         [HttpGet("HolaMundo")]
-        public string holaMundo()
+        [HttpGet("GetShowSeats")]
+         public async Task<IActionResult> GetShowSeats()
         {
-            return "Hello World";
+            try
+           {
+               var model = _apiServices.GetShowSeats();
+               return Ok(model);
+           }
+           catch (Exception ex)
+           {
+               return BadRequest("Obtener el catálogo de asientos falló debido a: " + ex.Message);
+           }
         }
 
         //[HttpGet("GetTicketInfo")]
