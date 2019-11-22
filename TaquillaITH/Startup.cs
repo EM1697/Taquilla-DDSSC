@@ -38,7 +38,10 @@ namespace TaquillaITH
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddCors();
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
+            });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddScoped<ApiServices>();
@@ -71,7 +74,7 @@ namespace TaquillaITH
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            app.UseCors();
+            app.UseCors(options => options.AllowAnyOrigin());
         }
     }
 }
