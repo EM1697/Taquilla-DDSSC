@@ -17,17 +17,18 @@ namespace TaquillaITH.Services
             _db = db;
         }
 
-        public List<Seat> GetShowSeats()
+        public List<List<Seat>> GetShowSeats()
         {
             try
-           {
-               var model = _db.Seats.Where(x => !x.IsDeleted).ToList();
-               return model;
-           }
-           catch (Exception ex)
-           {
-               return null;
-           }
+            {
+                var Seats = _db.Seats.ToList();
+                var OrderedSeats = Seats.GroupBy(x => x.Name.Length == 2 ? x.Name.Substring(1,1) : x.Name.Substring(2,1)).Select(x=>x.ToList()).ToList();
+                return OrderedSeats;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
     }
 }

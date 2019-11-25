@@ -20,20 +20,6 @@ namespace TaquillaITH.Controllers
             _apiServices = apiServices;
         }
 
-        //[HttpGet("GetShowSeats")]
-        // public List<Seat> GetShowSeats()
-        // {
-        //     try
-        //    {
-        //        var x = new List<Seat>();
-        //        return x;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest("El registro de corte en finanzas falló debido a: " + ex.Message);
-        //    }
-        // }
-
         [HttpGet("GetShowSeats")]
          public async Task<IActionResult> GetShowSeats()
         {
@@ -48,18 +34,5 @@ namespace TaquillaITH.Controllers
            }
         }
 
-        //[HttpGet("GetTicketInfo")]
-        ////metodo de api para registrar los ingresos de cortes de los departamentos
-        //public Task<IActionResult> IncomeRegister()
-        //{
-        //    //try
-        //    //{
-        //    //    return Ok("");
-        //    //}
-        //    //catch (Exception ex)
-        //    //{
-        //    //    return BadRequest("El registro de corte en finanzas falló debido a: " + ex.Message);
-        //    //}
-        //}
     }
 }
