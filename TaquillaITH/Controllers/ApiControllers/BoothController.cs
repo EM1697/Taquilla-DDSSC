@@ -34,5 +34,23 @@ namespace TaquillaITH.Controllers
            }
         }
 
+        [HttpGet("GetShowTimes")]
+         public async Task<IActionResult> GetShowTimes()
+        {
+            try
+           {
+               var model = _apiServices.GetShowTimes();
+               foreach (var data in model)
+               {
+                   data.horarios = data.horario.Replace(" ", string.Empty).Split(',').ToList();
+               }
+               var movies = model.Select(x => new{pelicula = x.nombre, horarios = x.horarios, sala = x.sala});
+               return Ok(movies);
+           }
+           catch (Exception ex)
+           {
+               return BadRequest("Obtener el catálogo de asientos falló debido a: " + ex.Message);
+           }
+        }
     }
 }
