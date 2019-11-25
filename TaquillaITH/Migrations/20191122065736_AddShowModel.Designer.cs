@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaquillaITH.Data;
 
 namespace TaquillaITH.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191122065736_AddShowModel")]
+    partial class AddShowModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,9 +42,6 @@ namespace TaquillaITH.Migrations
 
                     b.Property<int>("NomalTicketsCount")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("SaleDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<decimal>("Tickets3DAmount")
                         .HasColumnType("decimal(18,2)");
@@ -125,9 +124,6 @@ namespace TaquillaITH.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DaySalesId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -136,12 +132,6 @@ namespace TaquillaITH.Migrations
 
                     b.Property<int?>("MovieId")
                         .HasColumnType("int");
-
-                    b.Property<int?>("PaymentId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("SaleDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Time")
                         .HasColumnType("nvarchar(max)");
@@ -154,39 +144,12 @@ namespace TaquillaITH.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DaySalesId");
-
                     b.HasIndex("MovieId");
-
-                    b.HasIndex("PaymentId");
 
                     b.ToTable("Sales");
                 });
 
             modelBuilder.Entity("TaquillaITH.Models.Seat", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Occupied")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("TheatreRoomId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TheatreRoomId");
-
-                    b.ToTable("Seats");
-                });
-
-            modelBuilder.Entity("TaquillaITH.Models.Show", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -202,22 +165,25 @@ namespace TaquillaITH.Migrations
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("MovieId")
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("SaleId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ShowTime")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
-                    b.Property<int>("TheatreRoomId")
+                    b.Property<int?>("TheatreRoomId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MovieId");
+                    b.HasIndex("SaleId");
 
                     b.HasIndex("TheatreRoomId");
 
-                    b.ToTable("Shows");
+                    b.ToTable("Seat");
                 });
 
             modelBuilder.Entity("TaquillaITH.Models.TheatreRoom", b =>
@@ -246,39 +212,20 @@ namespace TaquillaITH.Migrations
 
             modelBuilder.Entity("TaquillaITH.Models.Sale", b =>
                 {
-                    b.HasOne("TaquillaITH.Models.DaySales", "DaySales")
-                        .WithMany()
-                        .HasForeignKey("DaySalesId");
-
                     b.HasOne("TaquillaITH.Models.Movie", "Movie")
                         .WithMany()
                         .HasForeignKey("MovieId");
-
-                    b.HasOne("TaquillaITH.Models.Payment", "Payment")
-                        .WithMany()
-                        .HasForeignKey("PaymentId");
                 });
 
             modelBuilder.Entity("TaquillaITH.Models.Seat", b =>
                 {
+                    b.HasOne("TaquillaITH.Models.Sale", null)
+                        .WithMany("Seats")
+                        .HasForeignKey("SaleId");
+
                     b.HasOne("TaquillaITH.Models.TheatreRoom", null)
                         .WithMany("Seats")
                         .HasForeignKey("TheatreRoomId");
-                });
-
-            modelBuilder.Entity("TaquillaITH.Models.Show", b =>
-                {
-                    b.HasOne("TaquillaITH.Models.Movie", "Movie")
-                        .WithMany()
-                        .HasForeignKey("MovieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TaquillaITH.Models.TheatreRoom", "TheatreRoom")
-                        .WithMany()
-                        .HasForeignKey("TheatreRoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

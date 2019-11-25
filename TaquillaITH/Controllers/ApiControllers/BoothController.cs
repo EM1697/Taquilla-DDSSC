@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TaquillaITH.Services;
+using Microsoft.AspNetCore.Cors;
+using TaquillaITH.Models;
 
 namespace TaquillaITH.Controllers
 {
@@ -18,18 +20,37 @@ namespace TaquillaITH.Controllers
             _apiServices = apiServices;
         }
 
-        //[HttpGet("GetTicketInfo")]
-        ////metodo de api para registrar los ingresos de cortes de los departamentos
-        //public Task<IActionResult> IncomeRegister()
-        //{
-        //    //try
-        //    //{
-        //    //    return Ok("");
-        //    //}
-        //    //catch (Exception ex)
-        //    //{
-        //    //    return BadRequest("El registro de corte en finanzas falló debido a: " + ex.Message);
-        //    //}
-        //}
+        [HttpGet("GetShowSeats")]
+         public async Task<IActionResult> GetShowSeats()
+        {
+            try
+           {
+               var model = _apiServices.GetShowSeats();
+               return Ok(model);
+           }
+           catch (Exception ex)
+           {
+               return BadRequest("Obtener el catálogo de asientos falló debido a: " + ex.Message);
+           }
+        }
+
+        [HttpGet("GetShowTimes")]
+         public async Task<IActionResult> GetShowTimes()
+        {
+            try
+           {
+               var model = _apiServices.GetShowTimes();
+               foreach (var data in model)
+               {
+                   data.horarios = data.horario.Replace(" ", string.Empty).Split(',').ToList();
+               }
+               var movies = model.Select(x => new{pelicula = x.nombre, horarios = x.horarios, sala = x.sala});
+               return Ok(movies);
+           }
+           catch (Exception ex)
+           {
+               return BadRequest("Obtener el catálogo de asientos falló debido a: " + ex.Message);
+           }
+        }
     }
 }

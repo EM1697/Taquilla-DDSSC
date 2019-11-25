@@ -38,7 +38,12 @@ namespace TaquillaITH
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddCors();
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            }));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddScoped<ApiServices>();
@@ -47,6 +52,7 @@ namespace TaquillaITH
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors("MyPolicy");
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -71,7 +77,7 @@ namespace TaquillaITH
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            app.UseCors();
+            app.UseCors(options => options.AllowAnyOrigin());
         }
     }
 }
