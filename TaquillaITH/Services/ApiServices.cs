@@ -57,5 +57,35 @@ namespace TaquillaITH.Services
                 return null;
             }
         }
+
+        public List<DaySalesViewModel> GetDaySales(){
+                        try
+            {
+                var data =  (from s in _db.Sales
+                            join p in _db.Payments on s.Payment.Id equals p.Id
+                            join m in _db.Movies on s.Movie.Id equals m.Id
+                            where (s.IsDeleted == false && p.IsDeleted == false && m.IsDeleted == false)
+                            select new DaySalesViewModel()
+                            {
+                                UserId = s.UserId,
+                                TipoBoletoId = s.TipoBoletoId,
+                                SaleDate = s.SaleDate,
+                                Cash = p.Cash,
+                                CreditCard = p.CreditCard,
+                                RewardPoints = p.RewardPoints,
+                                TotalAmount = p.Cash + p.CreditCard + p.TotalAmount,
+                                Name = m.Name,
+                                Schedule = m.Schedule,
+                                RunningTime = m.RunningTime
+                            }).ToList();
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
     }
 }

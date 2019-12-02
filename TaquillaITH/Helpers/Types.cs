@@ -42,7 +42,7 @@ namespace CineTaquilla.Helpers
         Ticket3D = 1,
 
         [Display(Name = "Boleto VIP")]
-        VipTicket = 1,
+        VipTicket = 2,
     }
 
     public enum SeatStatus
