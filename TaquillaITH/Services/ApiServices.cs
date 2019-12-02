@@ -18,17 +18,52 @@ namespace TaquillaITH.Services
             _db = db;
         }
 
-        public List<List<Seat>> GetShowSeats()
+        public List<List<Seat>> GetShowSeats(int idSala, string Horario)
         {
             try
             {
+                var Schedule = Convert.ToDateTime(Horario);
+
+                if (idSala <= 0)
+                    return null;
+
+                var Show = GetShow(idSala, Schedule);
                 var Seats = _db.Seats.ToList();
-                var OrderedSeats = Seats.GroupBy(x => x.Name.Length == 2 ? x.Name.Substring(1,1) : x.Name.Substring(2,1)).Select(x=>x.ToList()).ToList();
-                return OrderedSeats;
+                var UsedSeats = Show.UsedSeats.Split(",").ToList();
+
+                foreach (var item in UsedSeats)
+                    Seats.FirstOrDefault(x=>x.Name == item).Occupied = true;
+
+                return Seats.GroupBy(x => x.Name.Length == 2 ? x.Name.Substring(1, 1) : x.Name.Substring(2, 1)).Select(x => x.ToList()).ToList();
             }
             catch (Exception ex)
             {
                 return null;
+            }
+        }
+
+        public Show GetShow(int idSala, DateTime Horario)
+        {
+            try
+            {
+                return _db.Shows.FirstOrDefault(x => x.TheatreRoomId == idSala && x.ShowTime == Horario);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public async Task<bool> UpdateShow(Show show)
+        {
+            try
+            {
+                _db.Shows.Update(show);
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
             }
         }
 
@@ -55,6 +90,20 @@ namespace TaquillaITH.Services
             catch (Exception ex)
             {
                 return null;
+            }
+        }
+
+        public async Task<bool> SavePurchase(Sale sale)
+        {
+            try
+            {
+                _db.Sales.Add(sale);
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
     }

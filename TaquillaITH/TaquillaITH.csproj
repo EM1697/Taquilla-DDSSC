@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <Folder Include="Helpers\" />
-    <Folder Include="Viewmodels\" />
   </ItemGroup>
 
 

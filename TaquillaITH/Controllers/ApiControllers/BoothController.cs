@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using TaquillaITH.Services;
 using Microsoft.AspNetCore.Cors;
 using TaquillaITH.Models;
+using TaquillaITH.ViewModels;
 
 namespace TaquillaITH.Controllers
 {
@@ -21,16 +22,49 @@ namespace TaquillaITH.Controllers
         }
 
         [HttpGet("GetShowSeats")]
-        public async Task<IActionResult> GetShowSeats()
+        public async Task<IActionResult> GetShowSeats(int idSala, string Horario)
         {
             try
             {
-                var model = _apiServices.GetShowSeats();
+                var model = _apiServices.GetShowSeats(idSala, Horario);
+
+                if (model == null)
+                    return BadRequest("Obtener el catálogo de asientos falló");
+
                 return Ok(model);
             }
             catch (Exception ex)
             {
                 return BadRequest("Obtener el catálogo de asientos falló debido a: " + ex.Message);
+            }
+        }
+
+        //Post
+        [HttpPost("SelectShowSeats")]
+        public async Task<IActionResult> SelectedSeats(ShowTimeSeatsViewModel seats)
+        {
+            try
+            {
+                var Schedule = Convert.ToDateTime(seats.Horario);
+                var Show = _apiServices.GetShow(seats.IdSala, Schedule);
+
+                foreach (var item in seats.AsientosUsados)
+                {
+                    if (string.IsNullOrEmpty(Show.UsedSeats))
+                        Show.UsedSeats += item.ToUpper();
+                    else
+                        Show.UsedSeats += $",{item.ToUpper()}";
+                }
+
+                bool ShowUpdated = await _apiServices.UpdateShow(Show);
+                if (ShowUpdated)
+                    return Ok();
+                else
+                    return BadRequest("No se puedieron guardar los asientos");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("No se puedieron guardar los asientos debido a " + ex);
             }
         }
 
@@ -44,12 +78,28 @@ namespace TaquillaITH.Controllers
                 {
                     data.horarios = data.horario.Replace(" ", string.Empty).Split(',').ToList();
                 }
-                var movies = model.Select(x => new { pelicula = x.nombre, horarios = x.horarios, sala = x.sala, duracion = x.duracion, sinopsis = x.sinopsis, genero = x.genero });
+                var movies = model.Select(x => new { pelicula = x.nombre, x.horarios, x.sala, x.duracion, x.sinopsis, x.genero, precioBoletos = new { boletoNormal = 50, boleto3D = 60, boletoVIP = 70  } });
                 return Ok(movies);
             }
             catch (Exception ex)
             {
                 return BadRequest("Obtener el catálogo de asientos falló debido a: " + ex.Message);
+            }
+        }
+
+        [HttpPost("SavePurchase")]
+        public async Task<IActionResult> SavePurchase(Sale sale)
+        {
+            try
+            {
+                var model = await _apiServices.SavePurchase(sale);
+                if (!model)
+                    return BadRequest("Hubo un error al momento de guardar la venta, por favor inténtelo después");
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Hubo un error al momento de guardar la venta, por favor intentelo despues" + ex.Message);
             }
         }
     }
