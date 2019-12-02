@@ -12,5 +12,6 @@ namespace TaquillaITH.Models
         public int TheatreRoomId {get; set;}
         public virtual TheatreRoom TheatreRoom {get; set;}
         public DateTime ShowTime { get; set; }
+        public string UsedSeats { get; set; }
     }
 }
