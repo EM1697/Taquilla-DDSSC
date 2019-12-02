@@ -45,6 +45,9 @@ namespace TaquillaITH.Services
                                 nombre = m.Name,
                                 horario = m.Schedule,
                                 sala = r.Name,
+                                genero = m.Genre,
+                                sinopsis = m.Synopsis,
+                                duracion = m.RunningTime
                             }).ToList();
 
                 return data;
