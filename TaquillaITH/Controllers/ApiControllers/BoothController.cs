@@ -36,7 +36,7 @@ namespace TaquillaITH.Controllers
 
         [HttpGet("GetShowTimes")]
         public async Task<IActionResult> GetShowTimes()
-        {
+        {   
             try
             {
                 var model = _apiServices.GetShowTimes();
@@ -44,7 +44,7 @@ namespace TaquillaITH.Controllers
                 {
                     data.horarios = data.horario.Replace(" ", string.Empty).Split(',').ToList();
                 }
-                var movies = model.Select(x => new { pelicula = x.nombre, horarios = x.horarios, sala = x.sala });
+                var movies = model.Select(x => new { pelicula = x.nombre, horarios = x.horarios, sala = x.sala, duracion = x.duracion, sinopsis = x.sinopsis, genero = x.genero });
                 return Ok(movies);
             }
             catch (Exception ex)

@@ -12,5 +12,8 @@ namespace TaquillaITH.ViewModels
         public string horario {get; set;}
         public List<string> horarios {get; set;}
         public string sala {get; set;}
+        public string genero {get; set;}
+        public string duracion {get; set;}
+        public string sinopsis {get; set;}
     }
 }
