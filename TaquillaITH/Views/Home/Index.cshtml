@@ -1,5 +1,9 @@
-﻿@{
+﻿@model List<TaquillaITH.ViewModels.DaySalesViewModel>
+@using TaquillaITH.ViewModels;
+@{
     ViewData["Title"] = "Home Page";
+    List<DaySalesViewModel> sales = new List<DaySalesViewModel>();
+    sales = (List<DaySalesViewModel>) @ViewData["DaySales"];
 }
 
 <div class="text-center container">
@@ -10,20 +14,114 @@
     </div>
     <div class="row mt-2 justify-content-md-center">
         <div class="col-6">
-            <p>El corte al dia de:</p>
+            <p>Al dia de:</p>
         </div>
     </div>
         <div class="row mt-2 justify-content-md-center">
         <div class="col-6">
-            <input type="date" class="form-control" placeholder="Fecha" aria-label="Fecha" aria-describedby="addon-wrapping">  
+            <input id="date" type="date" class="form-control" placeholder="Fecha" aria-label="Fecha" aria-describedby="addon-wrapping">  
         </div>
     </div>
     <div class="row">
         <div class="col-12">
-            <div id="corte">
-
+            <div id="container">
+            <table class="table table-dark mt-3">
+            <thead>
+                <tr>
+                <th scope="col">Usuario</th>
+                <th scope="col">Tipo de boleto</th>
+                <th scope="col">Dia de la venta</th>
+                <th scope="col">Efectivo</th>
+                <th scope="col">Credito</th>
+                <th scope="col">Puntos</th>
+                <th scope="col">Monto Total</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Horarios</th>
+                <th scope="col">Duración</th>
+                </tr>
+            </thead>
+            <tbody id="body">
+            </tbody>
+            </table>
             </div>
         </div>
     </div>
-        <button type="button" class="btn btn-outline-dark mt-4">Confirmar Corte</button>
+        <button id="unnskyld" type="button" class="btn btn-outline-dark mt-4">Confirmar Corte</button>
 </div>
+
+<script>
+    $( document ).ready(function() {
+        $( "#date" ).change(function() {
+                    var daySpace="";
+                    var date = new Date($("input").val());
+                    var day = date.getDate() +1;       // yields date
+                    console.log((day.toString()).length);
+                    console.log(day);
+                    (day.toString()).length == 1 ? daySpace="0" : day;
+                    var month = date.getMonth() +1;   // yields month (add one as '.getMonth()' is zero indexed)
+                    var year = date.getFullYear();  // yields year
+                    var hour = date.getHours();     // yields hours 
+                    var minute = date.getMinutes(); // yields minutes
+                    var second = date.getSeconds(); // yields seconds
+                    // After this construct a string with the above results as below
+                    var time = year + "-" + month + "-" + daySpace + day + " " + "13:09:00"; 
+                    console.log(time);
+                    $.ajax({
+                        url: "/Home/DaySales",
+                        type: 'GET',
+                        data: {'date':time},
+                        success: function(data) {
+                            loadData(data);
+                            console.log("Success");
+                            console.log(data[0].userId);
+                            return data; 
+                        }
+                    });
+        });
+    });
+
+    
+
+
+
+
+function loadData(data){
+        if(data[0] != null){
+                data.forEach(function(element){
+            var tr = document.createElement("tr");
+            var td1 = document.createElement("td");
+            var td2 = document.createElement("td");
+            var td3 = document.createElement("td");
+            var td4 = document.createElement("td");
+            var td5 = document.createElement("td");
+            var td6 = document.createElement("td");
+            var td7 = document.createElement("td");
+            var td8 = document.createElement("td");
+            var td9 = document.createElement("td");
+            var td10 = document.createElement("td");
+            td1.innerHTML =element.userId;
+            switch(element.tipoBoletoId){
+                case 0:
+                    td2.innerHTML ="Boleto normal";break;
+                case 1: 
+                    td2.innerHTML = "Boleto 3D";break;
+                case 2: 
+                    td2.innerHTML = "Boleto VIP";break;
+                    default: break;
+            }
+            
+            td3.innerHTML =element.saleDate;
+            td4.innerHTML ="$"+element.cash+".00";
+            td5.innerHTML ="$"+element.creditCard+".00";
+            td6.innerHTML =element.rewardPoints;
+            td7.innerHTML ="$"+element.totalAmount+".00";
+            td8.innerHTML =element.name;
+            td9.innerHTML =element.schedule;
+            td10.innerHTML =element.runningTime+" min.";
+            tr.append(td1, td2, td3, td4, td5, td6, td7, td8, td9, td10);
+            $("#body").append(tr);
+        }) 
+    }
+
+}
+</script>

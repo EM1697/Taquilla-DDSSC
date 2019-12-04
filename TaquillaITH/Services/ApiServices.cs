@@ -93,13 +93,14 @@ namespace TaquillaITH.Services
             }
         }
 
-        public List<DaySalesViewModel> GetDaySales(){
-                        try
+        public List<DaySalesViewModel> GetDaySales(string dateF){
+            DateTime date = DateTime.ParseExact(dateF, "yyyy-MM-dd HH:mm:ss", null);
+            try
             {
                 var data =  (from s in _db.Sales
                             join p in _db.Payments on s.Payment.Id equals p.Id
                             join m in _db.Movies on s.Movie.Id equals m.Id
-                            where (s.IsDeleted == false && p.IsDeleted == false && m.IsDeleted == false)
+                            where (s.IsDeleted == false && p.IsDeleted == false && m.IsDeleted == false && s.SaleDate.Day == date.Day && s.SaleDate.Month == date.Month && s.SaleDate.Year == date.Year)
                             select new DaySalesViewModel()
                             {
                                 UserId = s.UserId,
@@ -127,6 +128,20 @@ namespace TaquillaITH.Services
             try
             {
                 _db.Sales.Add(sale);
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> RegisterDaySales(DaySales sales)
+        {
+            try
+            {
+                _db.DaySales.Add(sales);
                 await _db.SaveChangesAsync();
                 return true;
             }
