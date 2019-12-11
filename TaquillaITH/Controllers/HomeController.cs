@@ -15,6 +15,7 @@ using TaquillaITH.ViewModels;
 namespace TaquillaITH.Controllers
 {
     public class HomeController : Controller
+        //http://peliculaapi.gearhostpreview.com/index.php/Cartelera/agenda
     {
         private readonly ILogger<HomeController> _logger;
         public ApiServices _sc;
@@ -36,6 +37,7 @@ namespace TaquillaITH.Controllers
             // ViewData["DaySales"] = sales;
             return View();
         }
+
 
         public IActionResult Privacy()
         {
@@ -149,7 +151,7 @@ namespace TaquillaITH.Controllers
                     req.AddJsonBody(model);
                     var resp = await _client.ExecutePostTaskAsync(req);
                     if (resp.StatusCode == System.Net.HttpStatusCode.OK)
-                        return Ok("Se guardón correctamente");
+                        return Ok("Se guardarón correctamente");
                     return BadRequest("Se realizó el corte pero no se guardaron los registros en la base de datos de finanzas");
                 }
                 catch (Exception ex)

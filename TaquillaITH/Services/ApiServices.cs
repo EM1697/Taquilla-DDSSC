@@ -68,6 +68,25 @@ namespace TaquillaITH.Services
             }
         }
 
+        public async Task<bool> UpdateOldMovies()
+        {
+            try
+            {
+                var movies = _db.Movies.Where(x => !x.IsDeleted).ToList();
+                foreach (var movie in movies)
+                {
+                    movie.IsDeleted = true;
+                }
+                await _db.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         public List<ShowTimesViewModel> GetShowTimes()
         {
             try

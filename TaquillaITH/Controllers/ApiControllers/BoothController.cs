@@ -7,18 +7,28 @@ using Microsoft.AspNetCore.Mvc;
 using TaquillaITH.Services;
 using Microsoft.AspNetCore.Cors;
 using TaquillaITH.Models;
+using TaquillaITH.Models.DTO;
 using TaquillaITH.ViewModels;
+using RestSharp;
+using Newtonsoft.Json;
 
 namespace TaquillaITH.Controllers
 {
+
+
     [Route("api/[controller]")]
     [ApiController]
     public class BoothController : Controller
     {
         private readonly ApiServices _apiServices;
+
+        public RestClient _client;
+
         public BoothController(ApiServices apiServices)
         {
             _apiServices = apiServices;
+            _client = new RestClient();
+
         }
 
         [HttpGet("GetShowSeats")]
@@ -44,6 +54,32 @@ namespace TaquillaITH.Controllers
         {
             try
             {
+                //Lo nuevo alv
+                var req = new RestRequest("http://peliculaapi.gearhostpreview.com/index.php/Cartelera/agenda")
+                                    {
+                    Method = Method.GET,
+                    RequestFormat = DataFormat.Json
+                };
+
+
+                //Agregar Agenda a tabla de Movies
+                //Crear metodo en Api Services
+                //Rifensela vatos
+                var resp = await _client.ExecuteGetTaskAsync(req);
+                if (resp.StatusCode == System.Net.HttpStatusCode.OK){
+                    var model2 = JsonConvert.DeserializeObject<Pelicula>(resp.Content);
+                    if (model2 != null && model2.Agenda.Any()){
+                        var kk = await _apiServices.UpdateOldMovies();
+                        if (kk){
+                            foreach (var movie in model2.Agenda)
+                            {
+                                
+                            }
+                        }
+                    }
+                }
+
+                //Lo que ya estaba
                 var model = _apiServices.GetShowTimes();
                 foreach (var data in model)
                 {
