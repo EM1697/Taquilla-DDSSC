@@ -13,5 +13,10 @@ namespace TaquillaITH.Models.DTO
         public string Pelicula { get; set; }
         public string Tipo { get; set; }
         public double Precio { get; set; }
+
+        public int ProductId { get; set; }
+        public int Total { get; set; }
+        public string Date { get; set; }
+        public int Quantity { get; set; }
     }
 }

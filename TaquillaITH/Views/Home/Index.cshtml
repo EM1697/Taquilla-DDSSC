@@ -46,10 +46,24 @@
             </div>
         </div>
     </div>
-        <button id="unnskyld" type="button" class="btn btn-outline-dark mt-4">Confirmar Corte</button>
+        <button id="unnskyld" type="button" onclick="dateO();" class="btn btn-outline-dark mt-4">Confirmar Corte</button>
 </div>
 
 <script>
+    function dateO() {
+        var date = $("#date").val();
+        $.ajax({
+            type: "POST",
+            url: "/Home/PostTodoItem",
+            data: { "date": $("#date").val()},
+            success: function (msg) {
+                alert(date);
+            },
+            error: function (xhr) {
+                alert('Error: ' + xhr.statusText);
+            },
+        });
+    }
     $( document ).ready(function() {
         $( "#date" ).change(function() {
                     var daySpace="";
@@ -119,4 +133,5 @@ function loadData(data){
         }) 
     }
 }
+
 </script>

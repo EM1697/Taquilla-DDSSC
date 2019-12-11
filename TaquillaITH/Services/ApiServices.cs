@@ -146,7 +146,7 @@ namespace TaquillaITH.Services
                 await _db.SaveChangesAsync();
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return false;
             }

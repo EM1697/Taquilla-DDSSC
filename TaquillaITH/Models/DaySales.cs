@@ -11,7 +11,10 @@ namespace TaquillaITH.Models
         public decimal NomalTicketsAmount { get; set; }
         public int Tickets3DCount { get; set; }
         public decimal Tickets3DAmount { get; set; }
+        public int TicketsVIPCount { get; set; }
+        public decimal Tickets3DVIPAmount { get; set; }
         public decimal TotalAmount { get; set; }
+
         public DateTime SaleDate { get; set; }
     }
 }

@@ -5,7 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RestSharp;
+using TaquillaITH.Data;
 using TaquillaITH.Models;
+using TaquillaITH.Models.DTO;
 using TaquillaITH.Services;
 using TaquillaITH.ViewModels;
 
@@ -15,10 +18,14 @@ namespace TaquillaITH.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         public ApiServices _sc;
-        public HomeController(ILogger<HomeController> logger, ApiServices apiServices)
+        public RestClient _client;
+        private readonly ApplicationDbContext _db;
+
+        public HomeController(ILogger<HomeController> logger, ApiServices apiServices, ApplicationDbContext db)
         {
             _logger = logger;
             _sc = apiServices;
+            _db = db; 
         }
 
         public IActionResult Index()
@@ -49,8 +56,14 @@ namespace TaquillaITH.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<DaySales>> PostTodoItem(List<DaySalesViewModel> sales)
+        public async Task<IActionResult> PostTodoItem(string date)
         {
+            DateTime datep = Convert.ToDateTime(date);
+            var sales =_db.Sales.Where(x => x.SaleDate.Day == datep.Day).ToList();
+            if (!sales.Any())
+            {
+                return BadRequest("No hay");
+            }
             DaySales daySales = new DaySales();
             int normalTickets = 0;
             decimal normalTicketsAmount = 0;
@@ -60,42 +73,80 @@ namespace TaquillaITH.Controllers
             decimal VipTicketAmount = 0;
             decimal TotalAmount = 0;
             DateTime saleDate = sales.FirstOrDefault().SaleDate;
+            List<Producto> productos = new List<Producto>();
+            string nombre;
+            int precio;
             foreach (var sale in sales)
             {
                 switch (sale.TipoBoletoId)
                 {
                     case CineTaquilla.Helpers.TicketType.NormalTicket:
-                        normalTickets += 1; break;
+                        normalTickets += 1;
+                        nombre = "Boleto Normal";
+                        precio = 50;
+                        break;
                     case CineTaquilla.Helpers.TicketType.Ticket3D:
-                        Tickets3D += 1; break;
+                        Tickets3D += 1;
+                        nombre = "Boleto 3D";
+                        precio = 60;
+                        break;
                     case CineTaquilla.Helpers.TicketType.VipTicket:
-                        VipTicket += 1; break;
+                        VipTicket += 1;
+                        nombre = "Boleto VIP";
+                        precio = 70;
+                        break;
+                    default:
+                        normalTickets += 1;
+                        nombre = "Boleto Normal";
+                        precio = 50;
+                        break;
                 }
+                var producto = new Producto
+                {
+                    ProductId = 5,
+                    Name = nombre,
+                    Total = precio,
+                    Quantity = 1
+                };
+                productos.Add(producto);
             }
             normalTicketsAmount = normalTickets * 50;
             Tickets3DAmount = Tickets3D * 60;
             VipTicketAmount = VipTicket * 70;
+            TotalAmount = normalTicketsAmount + Tickets3DAmount + VipTicketAmount;
             daySales.NomalTicketsAmount = normalTicketsAmount;
             daySales.Tickets3DAmount = Tickets3DAmount;
-            daySales.
+            daySales.Tickets3DVIPAmount = VipTicketAmount;
+            daySales.NomalTicketsCount = normalTickets;
+            daySales.Tickets3DCount = Tickets3D;
+            daySales.TicketsVIPCount = VipTicket;
+            daySales.SaleDate = sales.FirstOrDefault().SaleDate;
+            daySales.TotalAmount = TotalAmount;
 
+            //await _sc.RegisterDaySales(daySales);
+            if (await _sc.RegisterDaySales(daySales))
+            {
+                var req = new RestRequest("http://cinefinanzas.gear.host/api/Finance/IncomeRegister")
+                                    {
+                    Method = Method.POST,
+                    RequestFormat = DataFormat.Json
+                };
 
-            _context.TodoItems.Add(todoItem);
-            await _context.SaveChangesAsync();
+                var model = new {
+                    departmentKey = 1,
+                    date = sales.FirstOrDefault().SaleDate,
+                    productList = new List<Producto>(productos),
+                    total = productos.Sum( x => x.Total),
+                };
 
+                req.AddJsonBody(model);
+                var resp = await _client.ExecutePostTaskAsync(req);
+                if (resp.StatusCode == System.Net.HttpStatusCode.OK)
+                    return Ok("Se guardón correctamente");
+                return BadRequest("Se realizó el corte pero no se guardaron los registros en la base de datos de finanzas");
+            }
+            return BadRequest("No se pudo realizar correctamente el corte");
 
-            //var req = new RestRequest("http://cinefinanzas.gear.host/api/Finance/IncomeRegister%22)
-            //        {
-            //        Method = Method.POST,
-            //        RequestFormat = DataFormat.Json
-            //    };
-
-            //req.AddHeader("Content-Type", "multipart/form-data");
-            //var resp = await _client.ExecutePostTaskAsync(req);
-            //if (resp.StatusCode == System.Net.HttpStatusCode.OK)
-
-                //return CreatedAtAction("GetTodoItem", new { id = todoItem.Id }, todoItem);
-                return CreatedAtAction(nameof(GetTodoItem), new { id = todoItem.Id }, todoItem);
         }
 
     }
