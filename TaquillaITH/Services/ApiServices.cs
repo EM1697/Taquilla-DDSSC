@@ -68,6 +68,19 @@ namespace TaquillaITH.Services
             }
         }
 
+        public async Task<bool> UpdateMovies(List<Movie> lista){
+            try
+            {
+                _db.Movies.AddRange(lista);
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> UpdateOldMovies()
         {
             try
@@ -102,7 +115,7 @@ namespace TaquillaITH.Services
                                 sala = r.Name,
                                 genero = m.Genre,
                                 sinopsis = m.Synopsis,
-                                duracion = m.RunningTime
+                                duracion = m.RunningTime.ToString()
                             }).ToList();
 
                 return data;
@@ -132,7 +145,7 @@ namespace TaquillaITH.Services
                                 TotalAmount = p.Cash + p.CreditCard + p.TotalAmount,
                                 Name = m.Name,
                                 Schedule = m.Schedule,
-                                RunningTime = m.RunningTime
+                                RunningTime = m.RunningTime.ToString()
                             }).ToList();
 
                 return data;

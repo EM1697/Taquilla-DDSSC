@@ -56,25 +56,38 @@ namespace TaquillaITH.Controllers
             {
                 //Lo nuevo alv
                 var req = new RestRequest("http://peliculaapi.gearhostpreview.com/index.php/Cartelera/agenda")
-                                    {
+                {
                     Method = Method.GET,
                     RequestFormat = DataFormat.Json
                 };
 
-
                 //Agregar Agenda a tabla de Movies
                 //Crear metodo en Api Services
-                //Rifensela vatos
                 var resp = await _client.ExecuteGetTaskAsync(req);
-                if (resp.StatusCode == System.Net.HttpStatusCode.OK){
+                if (resp.StatusCode == System.Net.HttpStatusCode.OK)
+                {
                     var model2 = JsonConvert.DeserializeObject<Pelicula>(resp.Content);
-                    if (model2 != null && model2.Agenda.Any()){
+                    if (model2 != null && model2.Agenda.Any())
+                    {
                         var kk = await _apiServices.UpdateOldMovies();
-                        if (kk){
+                        List<Movie> lista = new List<Movie>();
+                        if (kk)
+                        {
                             foreach (var movie in model2.Agenda)
                             {
-                                
+                                var peli = new Movie
+                                {
+                                    Name = movie.Titulo,
+                                    Schedule = movie.Horarios,
+                                    Genre = movie.Categoria,
+                                    RunningTime = movie.Duracion,
+                                    Synopsis = movie.Sinopsis
+                                };
+                                lista.Add(peli);
                             }
+                            var examen = await _apiServices.UpdateMovies(lista);
+                            if (!examen)
+                                return BadRequest("ERROR");
                         }
                     }
                 }
@@ -151,7 +164,7 @@ namespace TaquillaITH.Controllers
                 var model = await _apiServices.SavePurchase(sale);
                 if (!model)
                     return BadRequest("Hubo un error al momento de guardar la venta, por favor inténtelo después");
-                
+
                 return Ok();
             }
             catch (Exception ex)

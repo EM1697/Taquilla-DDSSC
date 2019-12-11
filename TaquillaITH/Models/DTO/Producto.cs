@@ -7,7 +7,7 @@ namespace TaquillaITH.Models.DTO
 {
     public class Producto : Model
     {
-        public int Sala { get; set; }
+        public string Sala { get; set; }
         public string Hora { get; set; }
         public string Name { get; set; }
         public string Pelicula { get; set; }
