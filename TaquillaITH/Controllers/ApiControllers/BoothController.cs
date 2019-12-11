@@ -39,6 +39,25 @@ namespace TaquillaITH.Controllers
             }
         }
 
+        [HttpGet("GetShowTimes")]
+        public async Task<IActionResult> GetShowTimes()
+        {
+            try
+            {
+                var model = _apiServices.GetShowTimes();
+                foreach (var data in model)
+                {
+                    data.horarios = data.horario.Replace(" ", string.Empty).Split(',').ToList();
+                }
+                var movies = model.Select(x => new { pelicula = x.nombre, x.horarios, x.sala, x.duracion, x.sinopsis, x.genero, precioBoletos = new { boletoNormal = 50, boleto3D = 60, boletoVIP = 70 } });
+                return Ok(movies);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Obtener el catálogo de asientos falló debido a: " + ex.Message);
+            }
+        }
+
         //Post
         [HttpPost("SelectShowSeats")]
         public async Task<IActionResult> SelectedSeats(ShowTimeSeatsViewModel seats)
@@ -68,22 +87,23 @@ namespace TaquillaITH.Controllers
             }
         }
 
-        [HttpGet("GetShowTimes")]
-        public async Task<IActionResult> GetShowTimes()
-        {   
+        //Post
+        [HttpPost("PostTicketSale")]
+        public async Task<IActionResult> PostTicketSale(TicketSaleViewModel venta)
+        {
             try
             {
-                var model = _apiServices.GetShowTimes();
-                foreach (var data in model)
-                {
-                    data.horarios = data.horario.Replace(" ", string.Empty).Split(',').ToList();
-                }
-                var movies = model.Select(x => new { pelicula = x.nombre, x.horarios, x.sala, x.duracion, x.sinopsis, x.genero, precioBoletos = new { boletoNormal = 50, boleto3D = 60, boletoVIP = 70  } });
-                return Ok(movies);
+                bool Registred = await _apiServices.RegisterSale(venta);
+
+                if (!Registred)
+                    return BadRequest("No se pudo guardar la venta debido a un error en el servidor");
+
+                return Ok();
+
             }
             catch (Exception ex)
             {
-                return BadRequest("Obtener el catálogo de asientos falló debido a: " + ex.Message);
+                return BadRequest("No se pudo guardar la venta debido a " + ex);
             }
         }
 
