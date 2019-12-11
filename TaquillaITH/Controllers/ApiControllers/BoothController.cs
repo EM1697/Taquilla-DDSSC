@@ -64,13 +64,13 @@ namespace TaquillaITH.Controllers
                 //Agregar Agenda a tabla de Movies
                 //Crear metodo en Api Services
                 var resp = await _client.ExecuteGetTaskAsync(req);
+                List<Movie> lista = new List<Movie>();
                 if (resp.StatusCode == System.Net.HttpStatusCode.OK)
                 {
                     var model2 = JsonConvert.DeserializeObject<Pelicula>(resp.Content);
                     if (model2 != null && model2.Agenda.Any())
                     {
                         var kk = await _apiServices.UpdateOldMovies();
-                        List<Movie> lista = new List<Movie>();
                         if (kk)
                         {
                             foreach (var movie in model2.Agenda)
@@ -92,11 +92,14 @@ namespace TaquillaITH.Controllers
                     }
                 }
 
+                //Gamez joto
+                var algo = await _apiServices.UpdateShows(lista);
+
                 //Lo que ya estaba
                 var model = _apiServices.GetShowTimes();
                 foreach (var data in model)
                 {
-                    data.horarios = data.horario.Replace(" ", string.Empty).Split(',').ToList();
+                    data.horarios = data?.horario?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string>{"12:00"};
                 }
                 var movies = model.Select(x => new { pelicula = x.nombre, x.horarios, x.sala, x.duracion, x.sinopsis, x.genero, precioBoletos = new { boletoNormal = 50, boleto3D = 60, boletoVIP = 70 } });
                 return Ok(movies);

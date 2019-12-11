@@ -68,6 +68,39 @@ namespace TaquillaITH.Services
             }
         }
 
+         public async Task<bool> UpdateShows(List<Movie> lista)
+        {
+            try
+            {
+                var shows = _db.Shows.Where(x => !x.IsDeleted);
+                foreach (var item in shows)
+                {
+                    item.IsDeleted = true;
+                }
+                int sala = 1;
+                List<Show> funciones = new List<Show>();
+                foreach (var item in lista)
+                {
+                    List<string> horarios = new List<string>();
+                    horarios = item?.Schedule?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string>{"12:00"};
+                    var show = new Show{
+                        MovieId = item.Id,
+                        TheatreRoomId = sala++,
+                        ShowTime = Convert.ToDateTime( horarios.FirstOrDefault()),
+                        UsedSeats = ""
+                    };
+                    funciones.Add(show);
+                }
+                _db.Shows.AddRange(funciones);
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> UpdateMovies(List<Movie> lista){
             try
             {
