@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CineTaquilla.Helpers;
 
 namespace TaquillaITH.Services
 {
@@ -148,6 +149,56 @@ namespace TaquillaITH.Services
             catch (Exception)
             {
                 return false;
+            }
+        }
+
+        public async Task<bool> RegisterSale(TicketSaleViewModel venta)
+        {
+            try
+            {
+                var MovieSchedule = Convert.ToDateTime(venta.Fecha);
+                List<Sale> ventas = new List<Sale>();
+
+                foreach (var item in venta.Productos)
+                {
+                    var VentaCrack = new Sale
+                    {
+                        CreationDate = DateTime.Now,
+                        LastUpdate = DateTime.Now,
+                        SaleDate = DateTime.Now,
+                        Time = item.Hora,
+                        TipoBoletoId = GetTicketType(item.Tipo),
+                        Payment = new Payment
+                        {
+                            Cash = Convert.ToDecimal(item.Precio)
+                        },
+                        MovieName = item.Pelicula
+                    };
+                    ventas.Add(VentaCrack);
+                }
+
+                _db.Sales.AddRange(ventas);
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private TicketType GetTicketType(string Boleto)
+        {
+            switch (Boleto)
+            {
+                case "boletoVIP":
+                    return TicketType.VipTicket;
+                case "boleto3D":
+                    return TicketType.Ticket3D;
+                case "boletoNormal":
+                    return TicketType.NormalTicket;
+                default:
+                    return TicketType.NormalTicket;
             }
         }
     }

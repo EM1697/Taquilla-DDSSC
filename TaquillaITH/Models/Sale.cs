@@ -9,6 +9,7 @@ namespace TaquillaITH.Models
     public class Sale : Model
     {
         public virtual Movie Movie { get; set; }
+        public string MovieName { get; set; }
         public string Time { get; set; }
         public int? UserId { get; set; }
         public TicketType TipoBoletoId { get; set; }
