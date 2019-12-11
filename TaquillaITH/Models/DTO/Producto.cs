@@ -18,5 +18,6 @@ namespace TaquillaITH.Models.DTO
         public int Total { get; set; }
         public string Date { get; set; }
         public int Quantity { get; set; }
+        public int Amount { get; set; }
     }
 }

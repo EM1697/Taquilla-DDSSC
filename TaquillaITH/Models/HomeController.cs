@@ -25,7 +25,8 @@ namespace TaquillaITH.Controllers
         {
             _logger = logger;
             _sc = apiServices;
-            _db = db; 
+            _db = db;
+            _client = new RestClient();
         }
 
         public IActionResult Index()
@@ -106,7 +107,9 @@ namespace TaquillaITH.Controllers
                     ProductId = 5,
                     Name = nombre,
                     Total = precio,
-                    Quantity = 1
+                    Quantity = 1,
+                    Tipo = nombre,
+                    Amount = precio
                 };
                 productos.Add(producto);
             }
@@ -124,26 +127,35 @@ namespace TaquillaITH.Controllers
             daySales.TotalAmount = TotalAmount;
 
             //await _sc.RegisterDaySales(daySales);
+
+            
             if (await _sc.RegisterDaySales(daySales))
             {
-                var req = new RestRequest("http://cinefinanzas.gear.host/api/Finance/IncomeRegister")
-                                    {
-                    Method = Method.POST,
-                    RequestFormat = DataFormat.Json
-                };
+                try
+                {
+                    var req = new RestRequest("http://cinefinanzas.gear.host/api/Finance/IncomeRegister")
+                                        {
+                        Method = Method.POST,
+                        RequestFormat = DataFormat.Json
+                    };
 
-                var model = new {
-                    departmentKey = 1,
-                    date = sales.FirstOrDefault().SaleDate,
-                    productList = new List<Producto>(productos),
-                    total = productos.Sum( x => x.Total),
-                };
+                    var model = new {
+                        departmentKey = 1,
+                        date = sales.FirstOrDefault().SaleDate,
+                        productList = new List<Producto>(productos),
+                        total = productos.Sum( x => x.Total),
+                    };
 
-                req.AddJsonBody(model);
-                var resp = await _client.ExecutePostTaskAsync(req);
-                if (resp.StatusCode == System.Net.HttpStatusCode.OK)
-                    return Ok("Se guardón correctamente");
-                return BadRequest("Se realizó el corte pero no se guardaron los registros en la base de datos de finanzas");
+                    req.AddJsonBody(model);
+                    var resp = await _client.ExecutePostTaskAsync(req);
+                    if (resp.StatusCode == System.Net.HttpStatusCode.OK)
+                        return Ok("Se guardón correctamente");
+                    return BadRequest("Se realizó el corte pero no se guardaron los registros en la base de datos de finanzas");
+                }
+                catch (Exception ex)
+                {
+
+                }
             }
             return BadRequest("No se pudo realizar correctamente el corte");
 
