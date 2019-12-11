@@ -80,12 +80,8 @@
         });
     });
 
-    
-
-
-
-
 function loadData(data){
+        $("#body").empty();
         if(data[0] != null){
                 data.forEach(function(element){
             var tr = document.createElement("tr");
@@ -122,6 +118,5 @@ function loadData(data){
             $("#body").append(tr);
         }) 
     }
-
 }
 </script>

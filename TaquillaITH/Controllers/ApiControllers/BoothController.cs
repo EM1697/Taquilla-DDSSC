@@ -95,6 +95,7 @@ namespace TaquillaITH.Controllers
                 var model = await _apiServices.SavePurchase(sale);
                 if (!model)
                     return BadRequest("Hubo un error al momento de guardar la venta, por favor inténtelo después");
+                
                 return Ok();
             }
             catch (Exception ex)
