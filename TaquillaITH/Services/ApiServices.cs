@@ -79,13 +79,14 @@ namespace TaquillaITH.Services
                 }
                 int sala = 1;
                 List<Show> funciones = new List<Show>();
+        
                 foreach (var item in lista)
                 {
                     List<string> horarios = new List<string>();
                     horarios = item?.Schedule?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string>{"12:00"};
                     var show = new Show{
                         MovieId = item.Id,
-                        TheatreRoomId = sala++,
+                        TheatreRoomId = sala <= 8 ? sala++ : 8 ,
                         ShowTime = Convert.ToDateTime( horarios.FirstOrDefault()),
                         UsedSeats = ""
                     };
