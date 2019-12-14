@@ -68,31 +68,29 @@ namespace TaquillaITH.Services
             }
         }
 
-         public async Task<bool> UpdateShows(List<Movie> lista)
+         public async Task<bool> UpdateShows(List<Movie> movieList)
         {
             try
             {
-                var shows = _db.Shows.Where(x => !x.IsDeleted);
-                foreach (var item in shows)
-                {
-                    item.IsDeleted = true;
-                }
-                int sala = 1;
-                List<Show> funciones = new List<Show>();
+                var alreadyinDBShows = _db.Shows.Where(x => !x.IsDeleted).ToList();
+                _db.Shows.RemoveRange(alreadyinDBShows);
+
+                List<Show> shows = new List<Show>();
         
-                foreach (var item in lista)
+                foreach (var item in movieList)
                 {
                     List<string> horarios = new List<string>();
                     horarios = item?.Schedule?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string>{"12:00"};
                     var show = new Show{
                         MovieId = item.Id,
-                        TheatreRoomId = sala <= 8 ? sala++ : 8 ,
+                        TheatreRoomId = item.Num_Sala,
                         ShowTime = Convert.ToDateTime( horarios.FirstOrDefault()),
                         UsedSeats = ""
                     };
-                    funciones.Add(show);
+                    shows.Add(show);
                 }
-                _db.Shows.AddRange(funciones);
+
+                _db.Shows.AddRange(shows);
                 await _db.SaveChangesAsync();
                 return true;
             }
@@ -102,10 +100,10 @@ namespace TaquillaITH.Services
             }
         }
 
-        public async Task<bool> UpdateMovies(List<Movie> lista){
+        public async Task<bool> UpdateMovies(List<Movie> movieList){
             try
             {
-                _db.Movies.AddRange(lista);
+                _db.Movies.AddRange(movieList);
                 await _db.SaveChangesAsync();
                 return true;
             }
@@ -115,17 +113,13 @@ namespace TaquillaITH.Services
             }
         }
 
-        public async Task<bool> UpdateOldMovies()
+        public async Task<bool> DeleteOldMovies()
         {
             try
             {
-                var movies = _db.Movies.Where(x => !x.IsDeleted).ToList();
-                foreach (var movie in movies)
-                {
-                    movie.IsDeleted = true;
-                }
+                var alreadyinDBMovies = _db.Movies.Where(x => !x.IsDeleted).ToList();
+                _db.Movies.RemoveRange(alreadyinDBMovies);
                 await _db.SaveChangesAsync();
-
                 return true;
             }
             catch (Exception ex)
@@ -149,7 +143,8 @@ namespace TaquillaITH.Services
                                 sala = r.Name,
                                 genero = m.Genre,
                                 sinopsis = m.Synopsis,
-                                duracion = m.RunningTime.ToString()
+                                duracion = m.RunningTime.ToString(),
+                                photoUrl = m.PhotoUrl
                             }).ToList();
 
                 return data;

@@ -54,24 +54,22 @@ namespace TaquillaITH.Controllers
         {
             try
             {
-                //Lo nuevo alv
+                //Llamado api a Rene
                 var req = new RestRequest("http://peliculaapi.gearhostpreview.com/index.php/Cartelera/agenda")
                 {
                     Method = Method.GET,
                     RequestFormat = DataFormat.Json
                 };
 
-                //Agregar Agenda a tabla de Movies
-                //Crear metodo en Api Services
                 var resp = await _client.ExecuteGetTaskAsync(req);
-                List<Movie> lista = new List<Movie>();
+                List<Movie> Movies = new List<Movie>();
                 if (resp.StatusCode == System.Net.HttpStatusCode.OK)
                 {
                     var model2 = JsonConvert.DeserializeObject<Pelicula>(resp.Content);
                     if (model2 != null && model2.Agenda.Any())
                     {
-                        var kk = await _apiServices.UpdateOldMovies();
-                        if (kk)
+                        var updatedMovies = await _apiServices.DeleteOldMovies();
+                        if (updatedMovies)
                         {
                             foreach (var movie in model2.Agenda)
                             {
@@ -81,32 +79,47 @@ namespace TaquillaITH.Controllers
                                     Schedule = movie.Horarios,
                                     Genre = movie.Categoria,
                                     RunningTime = movie.Duracion,
-                                    Synopsis = movie.Sinopsis
+                                    Synopsis = movie.Sinopsis,
+                                    Num_Sala = movie.Num_Sala,
+                                    PhotoUrl = movie.Portada
                                 };
-                                lista.Add(peli);
+                                Movies.Add(peli);
                             }
-                            var examen = await _apiServices.UpdateMovies(lista);
+                            var examen = await _apiServices.UpdateMovies(Movies);
                             if (!examen)
-                                return BadRequest("ERROR");
+                                return BadRequest("Error al momento de actualizar las peliculas recientes");
                         }
                     }
+                    else
+                        return BadRequest("Hubo un error al momento de actualizar el catalogo de peliculas");
                 }
 
-                //Gamez joto
-                var algo = await _apiServices.UpdateShows(lista);
+                var algo = await _apiServices.UpdateShows(Movies);
 
-                //Lo que ya estaba
+                //Get de Shows
                 var model = _apiServices.GetShowTimes();
                 foreach (var data in model)
-                {
                     data.horarios = data?.horario?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string>{"12:00"};
-                }
-                var movies = model.Select(x => new { pelicula = x.nombre, x.horarios, x.sala, x.duracion, x.sinopsis, x.genero, precioBoletos = new { boletoNormal = 50, boleto3D = 60, boletoVIP = 70 } });
+
+                var movies = model.Select(x => new 
+                {
+                    pelicula = x.nombre,
+                    x.horarios, 
+                    x.sala,
+                    x.duracion, 
+                    x.sinopsis,
+                    x.genero,
+                    precioBoletos = new 
+                    { 
+                        boletoNormal = 50, boleto3D = 60, boletoVIP = 70 
+                    },
+                    x.photoUrl
+                });
                 return Ok(movies);
             }
             catch (Exception ex)
             {
-                return BadRequest("Obtener el catálogo de asientos falló debido a: " + ex.Message);
+                return BadRequest("Obtener el catálogo de asientos falló debido a: " + ex);
             }
         }
 

@@ -11,6 +11,8 @@ namespace TaquillaITH.Models
         public string Schedule { get; set; }
         public string Genre { get; set; }
         public int RunningTime { get; set; }
+        public int Num_Sala { get; set; }
         public string Synopsis { get; set; }
+        public string PhotoUrl { get; set; }
     }
 }

@@ -15,5 +15,6 @@ namespace TaquillaITH.ViewModels
         public string genero {get; set;}
         public string duracion {get; set;}
         public string sinopsis {get; set;}
+        public string photoUrl {get; set; }
     }
 }
