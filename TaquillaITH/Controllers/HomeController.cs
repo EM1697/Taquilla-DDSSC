@@ -15,13 +15,13 @@ using TaquillaITH.ViewModels;
 namespace TaquillaITH.Controllers
 {
     public class HomeController : Controller
-        //http://peliculaapi.gearhostpreview.com/index.php/Cartelera/agenda
+    //http://peliculaapi.gearhostpreview.com/index.php/Cartelera/agenda
     {
+        #region Variables and context, etc
         private readonly ILogger<HomeController> _logger;
         public ApiServices _sc;
         public RestClient _client;
         private readonly ApplicationDbContext _db;
-
         public HomeController(ILogger<HomeController> logger, ApiServices apiServices, ApplicationDbContext db)
         {
             _logger = logger;
@@ -38,7 +38,6 @@ namespace TaquillaITH.Controllers
             return View();
         }
 
-
         public IActionResult Privacy()
         {
             return View();
@@ -50,19 +49,25 @@ namespace TaquillaITH.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        #endregion
+
+        #region HTTP Get
         [HttpGet]
-        public List<DaySalesViewModel> DaySales(string date){
+        public List<DaySalesViewModel> DaySales(string date)
+        {
             // var DaySales = _sc.GetDaySales(date).Where(x => x.SaleDate.Day == date.Day);
             DateTime myDate = DateTime.ParseExact(date, "yyyy-MM-dd HH:mm:ss", null);
             var daySales = _sc.GetDaySales(date);
             return (daySales);
         }
+        #endregion
 
+        #region HTTP Post
         [HttpPost]
         public async Task<IActionResult> PostTodoItem(string date)
         {
             DateTime datep = Convert.ToDateTime(date);
-            var sales =_db.Sales.Where(x => x.SaleDate.Day == datep.Day).ToList();
+            var sales = _db.Sales.Where(x => x.SaleDate.Day == datep.Day).ToList();
             if (!sales.Any())
             {
                 return BadRequest("No hay");
@@ -130,22 +135,23 @@ namespace TaquillaITH.Controllers
 
             //await _sc.RegisterDaySales(daySales);
 
-            
+
             if (await _sc.RegisterDaySales(daySales))
             {
                 try
                 {
                     var req = new RestRequest("http://cinefinanzas.gear.host/api/Finance/IncomeRegister")
-                                        {
+                    {
                         Method = Method.POST,
                         RequestFormat = DataFormat.Json
                     };
 
-                    var model = new {
+                    var model = new
+                    {
                         departmentKey = 1,
                         date = sales.FirstOrDefault().SaleDate,
                         productList = new List<Producto>(productos),
-                        total = productos.Sum( x => x.Total),
+                        total = productos.Sum(x => x.Total),
                     };
 
                     req.AddJsonBody(model);
@@ -162,6 +168,6 @@ namespace TaquillaITH.Controllers
             return BadRequest("No se pudo realizar correctamente el corte");
 
         }
-
+        #endregion
     }
 }
