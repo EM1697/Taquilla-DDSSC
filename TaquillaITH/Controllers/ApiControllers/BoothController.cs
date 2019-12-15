@@ -98,7 +98,7 @@ namespace TaquillaITH.Controllers
                 }
 
                 //Agregar lista de pekiculas nuevas a la tabla de peliculas
-                await _apiServices.UpdateShows(Movies);
+                // await _apiServices.UpdateShows(Movies);
 
                 //Crear nuevos shows de peliculas
                 DateTime date = DateTime.Now;
