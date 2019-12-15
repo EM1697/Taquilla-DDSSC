@@ -14,23 +14,23 @@ using Newtonsoft.Json;
 
 namespace TaquillaITH.Controllers
 {
-
-
     [Route("api/[controller]")]
     [ApiController]
     public class BoothController : Controller
     {
+
+        #region Variables, context, etc
         private readonly ApiServices _apiServices;
-
         public RestClient _client;
-
         public BoothController(ApiServices apiServices)
         {
             _apiServices = apiServices;
             _client = new RestClient();
 
         }
+        #endregion
 
+        #region HTTP Get
         [HttpGet("GetShowSeats")]
         public async Task<IActionResult> GetShowSeats(int idSala, string Horario)
         {
@@ -54,13 +54,14 @@ namespace TaquillaITH.Controllers
         {
             try
             {
-                //Llamado api a Rene
+                //Llamado api a Renee
                 var req = new RestRequest("http://peliculaapi.gearhostpreview.com/index.php/Cartelera/agenda")
                 {
                     Method = Method.GET,
                     RequestFormat = DataFormat.Json
                 };
 
+                //Obtener cartelera de gestion de peliculas
                 var resp = await _client.ExecuteGetTaskAsync(req);
                 List<Movie> Movies = new List<Movie>();
                 if (resp.StatusCode == System.Net.HttpStatusCode.OK)
@@ -68,7 +69,9 @@ namespace TaquillaITH.Controllers
                     var model2 = JsonConvert.DeserializeObject<Pelicula>(resp.Content);
                     if (model2 != null && model2.Agenda.Any())
                     {
-                        var updatedMovies = await _apiServices.DeleteOldMovies();
+                        var updatedMovies = await _apiServices.DeleteOldMovies(); //Eliminar información de tabla de peliculas
+
+                        //Crear lista con info nuev de peliculas
                         if (updatedMovies)
                         {
                             foreach (var movie in model2.Agenda)
@@ -94,24 +97,60 @@ namespace TaquillaITH.Controllers
                         return BadRequest("Hubo un error al momento de actualizar el catalogo de peliculas");
                 }
 
-                var algo = await _apiServices.UpdateShows(Movies);
+                //Agregar lista de pekiculas nuevas a la tabla de peliculas
+                await _apiServices.UpdateShows(Movies);
+
+                //Crear nuevos shows de peliculas
+                DateTime date = DateTime.Now;
+                List<Show> newShows = new List<Show>();
+                if (date.DayOfWeek.ToString() == "Saturday")
+                {
+                    List<Movie> newMovies = new List<Movie>();
+                    newMovies = _apiServices.GetMovies(); //Lista de peliculas nuevas
+                    foreach (Movie movie in newMovies) //Recorrer cada pelicula
+                    {
+                        List<String> newHorarios = movie?.Schedule?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string> { "12:00" };
+                        foreach (var hora in newHorarios) //Cada horario por pelicula
+                        {
+                            // foreach (var dia in Enum.GetNames(typeof(DayOfWeek))) //Cada dia de la semana
+                            // {
+                            // }
+                            DateTime date2 = date;
+                            for (int i = 0; i < 7; i++)
+                            {
+                                var show = new Show() //Crear nuevo show
+                                {
+                                    MovieId = movie.Id,
+                                    TheatreRoomId = movie.Num_Sala,
+                                    ShowTime = Convert.ToDateTime($"{date2.Year}-{date2.Month}-{date2.Day} {hora}"),
+                                    UsedSeats = ""
+                                };
+                                newShows.Add(show);
+                                date2 = date2.AddDays(1);
+                            }
+                        }
+                    }
+                    await _apiServices.UpdateNewShows(newShows);
+                }
 
                 //Get de Shows
                 var model = _apiServices.GetShowTimes();
                 foreach (var data in model)
-                    data.horarios = data?.horario?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string>{"12:00"};
+                    data.horarios = data?.horario?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string> { "12:00" };
 
-                var movies = model.Select(x => new 
+                var movies = model.Select(x => new
                 {
                     pelicula = x.nombre,
-                    x.horarios, 
+                    x.horarios,
                     x.sala,
-                    x.duracion, 
+                    x.duracion,
                     x.sinopsis,
                     x.genero,
-                    precioBoletos = new 
-                    { 
-                        boletoNormal = 50, boleto3D = 60, boletoVIP = 70 
+                    precioBoletos = new
+                    {
+                        boletoNormal = 50,
+                        boleto3D = 60,
+                        boletoVIP = 70
                     },
                     x.photoUrl
                 });
@@ -123,7 +162,9 @@ namespace TaquillaITH.Controllers
             }
         }
 
-        //Post
+        #endregion
+
+        #region HTTP Post
         [HttpPost("SelectShowSeats")]
         public async Task<IActionResult> SelectedSeats(ShowTimeSeatsViewModel seats)
         {
@@ -152,7 +193,6 @@ namespace TaquillaITH.Controllers
             }
         }
 
-        //Post
         [HttpPost("PostTicketSale")]
         public async Task<IActionResult> PostTicketSale(TicketSaleViewModel venta)
         {
@@ -188,5 +228,7 @@ namespace TaquillaITH.Controllers
                 return BadRequest("Hubo un error al momento de guardar la venta, por favor intentelo despues" + ex.Message);
             }
         }
+
+        #endregion
     }
 }
