@@ -60,9 +60,7 @@ namespace TaquillaITH.Services
             try
             {
 
-                var Shous = _db.Shows.FirstOrDefault(x => x.TheatreRoomId == idSala && x.ShowTime.Day == (Horario.Day));
-
-                //var alaea = _db.Shows.FirstOrDefault(x => x.TheatreRoomId == idSala && x.ShowTime == Horario);
+                var Shous = _db.Shows.FirstOrDefault(x => x.TheatreRoomId == idSala && x.ShowTime.Day == (Horario.Day) && x.ShowTime.Hour == Horario.Hour);
                 return Shous;
             }
             catch (Exception ex)
@@ -146,38 +144,6 @@ namespace TaquillaITH.Services
             }
         }
 
-        public async Task<bool> UpdateShows(List<Movie> movieList)
-        {
-            try
-            {
-                var alreadyinDBShows = _db.Shows.Where(x => !x.IsDeleted && !string.IsNullOrEmpty(x.UsedSeats)).ToList();
-                _db.Shows.RemoveRange(alreadyinDBShows);
-
-                List<Show> shows = new List<Show>();
-
-                foreach (var item in movieList)
-                {
-                    List<string> horarios = new List<string>();
-                    horarios = item?.Schedule?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string> { "12:00" };
-                    var show = new Show
-                    {
-                        MovieId = item.Id,
-                        TheatreRoomId = item.Num_Sala,
-                        ShowTime = Convert.ToDateTime(horarios.FirstOrDefault()),
-                        UsedSeats = ""
-                    };
-                    shows.Add(show);
-                }
-
-                _db.Shows.AddRange(shows);
-                await _db.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-        }
 
         public async Task<bool> UpdateMovies(List<Movie> movieList)
         {
@@ -274,39 +240,7 @@ namespace TaquillaITH.Services
             }
         }
 
-        #endregion
-
-        #region Delete Methods
-        public async Task<bool> DeleteOldMovies()
-        {
-            try
-            {
-                var alreadyinDBMovies = _db.Movies.Where(x => !x.IsDeleted).ToList();
-                _db.Movies.RemoveRange(alreadyinDBMovies);
-                await _db.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-        }
-
-        public async Task<bool> DeleteOldShows()
-        {
-            try
-            {
-                var alreadyinDBMovies = _db.Movies.Where(x => !x.IsDeleted).ToList();
-                _db.Movies.RemoveRange(alreadyinDBMovies);
-                await _db.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-        }
-
+    
         #endregion
 
         #region Other Methods
