@@ -70,32 +70,26 @@ namespace TaquillaITH.Controllers
                     var model2 = JsonConvert.DeserializeObject<Pelicula>(resp.Content);
                     if (model2 != null && model2.Agenda.Any())
                     {
-                        var updatedMovies = await _apiServices.DeleteOldMovies(); //Eliminar información de tabla de peliculas
-
-                        //Crear lista con info nuev de peliculas
-                        if (updatedMovies)
+                        foreach (var movie in model2.Agenda)
                         {
-                            foreach (var movie in model2.Agenda)
-                            {
-                                Random rnd = new Random();
-                                int random = rnd.Next(9, 20);
+                            Random rnd = new Random();
+                            int random = rnd.Next(9, 20);
 
-                                var peli = new Movie
-                                {
-                                    Name = movie.Titulo,
-                                    Schedule = movie.Horarios ?? $"{random}:00",
-                                    Genre = movie.Categoria,
-                                    RunningTime = movie.Duracion,
-                                    Synopsis = movie.Sinopsis,
-                                    Num_Sala = movie.Num_Sala,
-                                    PhotoUrl = movie.Portada
-                                };
-                                Movies.Add(peli);
-                            }
-                            var examen = await _apiServices.UpdateMovies(Movies);
-                            if (!examen)
-                                return BadRequest("Error al momento de actualizar las peliculas recientes");
+                            var peli = new Movie
+                            {
+                                Name = movie.Titulo,
+                                Schedule = movie.Horarios ?? $"{random}:00",
+                                Genre = movie.Categoria,
+                                RunningTime = movie.Duracion,
+                                Synopsis = movie.Sinopsis,
+                                Num_Sala = movie.Num_Sala,
+                                PhotoUrl = movie.Portada
+                            };
+                            Movies.Add(peli);
                         }
+                        var examen = await _apiServices.UpdateMovies(Movies);
+                        if (!examen)
+                            return BadRequest("Error al momento de actualizar las peliculas recientes");
                     }
                     else
                         return BadRequest("Hubo un error al momento de actualizar el catalogo de peliculas");
@@ -182,23 +176,6 @@ namespace TaquillaITH.Controllers
                 });
 
                 return Ok(JsonReturn);
-                //var movies = model.Select(x => new
-                //{
-                //    pelicula = x.nombre,
-                //    x.horarios,
-                //    x.sala,
-                //    x.duracion,
-                //    x.sinopsis,
-                //    x.genero,
-                //    precioBoletos = new
-                //    {
-                //        boletoNormal = Promotions[0].Price,
-                //        boleto3D = Promotions[1].Price,
-                //        boletoVIP = Promotions[2].Price
-                //    },
-                //    x.photoUrl
-                //});
-                //return Ok(movies);
             }
             catch (Exception ex)
             {
@@ -242,13 +219,50 @@ namespace TaquillaITH.Controllers
         {
             try
             {
-                bool Registred = await _apiServices.RegisterSale(venta);
+                venta.Puntos = Convert.ToInt32(Math.Truncate(venta.Total * 1.10));
 
-                if (!Registred)
-                    return BadRequest("No se pudo guardar la venta debido a un error en el servidor");
+                //Membresia
+                var membershipRequest = new RestRequest("https://membresiascomplejo.azurewebsites.net/api/membresias/solicitardatos")
+                {
+                    Method = Method.GET,
+                    RequestFormat = DataFormat.Json
+                };
+                membershipRequest.AddQueryParameter("id", "9");
+                var membershipResponse = await _client.ExecuteGetTaskAsync(membershipRequest);
 
-                return Ok();
+                if (membershipResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    var Membership = JsonConvert.DeserializeObject<Membresia>(membershipResponse.Content);
 
+                    //Generar Puntos
+                    var pointsRequest = new RestRequest("https://membresiascomplejo.azurewebsites.net/api/membresias/GenerarPuntos")
+                    {
+                        Method = Method.POST,
+                        RequestFormat = DataFormat.Json
+                    };
+
+                    var pointsModel = new
+                    {
+                        Id_Membresia = 9,
+                        Id_Punto_Venta = 1,
+                        Puntos_Generados = venta.Puntos
+                    };
+
+                    pointsRequest.AddJsonBody(pointsModel);
+                    var pointsResponse = await _client.ExecutePostTaskAsync(pointsRequest);
+
+                    if (pointsResponse.StatusCode != System.Net.HttpStatusCode.OK)
+                        return BadRequest("Ocurrio un error al momento de generar los puntos");
+
+                    bool Registred = await _apiServices.RegisterSale(venta);
+
+                    if (!Registred)
+                        return BadRequest("No se pudo guardar la venta debido a un error en el servidor");
+
+                    return Ok();
+                }
+                else
+                    return BadRequest("Error al cargar la membresia");
             }
             catch (Exception ex)
             {
