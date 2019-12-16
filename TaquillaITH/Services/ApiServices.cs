@@ -186,30 +186,40 @@ namespace TaquillaITH.Services
                 List<Movie> finalList = new List<Movie>();
                 var alreadyInDbMovies = _db.Movies.Where(x => !x.IsDeleted).ToList();
 
-                foreach (var movie in movieList)
+                if (!alreadyInDbMovies.Any())
                 {
-                    bool flag = false;
-
-                    foreach (var inDbMovie in alreadyInDbMovies)
+                    _db.Movies.AddRange(movieList);
+                    await _db.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    foreach (var movie in movieList)
                     {
-                        if (movie.Name == inDbMovie.Name)
+                        bool flag = false;
+
+                        foreach (var inDbMovie in alreadyInDbMovies)
                         {
-                            flag = false;
-                            break;
+                            if (movie.Name == inDbMovie.Name)
+                            {
+                                flag = false;
+                                break;
+                            }
+                            else
+                            {
+                                flag = true;
+                            }
                         }
-                        else
-                        {
-                            flag = true;
-                        }
+
+                        if (flag)
+                            finalList.Add(movie);
                     }
 
-                    if (flag)
-                        finalList.Add(movie);
-                }
+                    _db.Movies.AddRange(finalList);
+                    await _db.SaveChangesAsync();
+                    return true;
 
-                _db.Movies.AddRange(finalList);
-                await _db.SaveChangesAsync();
-                return true;
+                }
             }
             catch (System.Exception ex)
             {
@@ -224,30 +234,39 @@ namespace TaquillaITH.Services
                 List<Show> finalList = new List<Show>();
                 var alreadyInDbShows = _db.Shows.Where(x => !x.IsDeleted).ToList();
 
-                foreach (var show in showsList)
+                if (!alreadyInDbShows.Any())
                 {
-                    bool flag = false;
-
-                    foreach (var inDbShow in alreadyInDbShows)
+                    _db.Shows.AddRange(showsList);
+                    await _db.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    foreach (var show in showsList)
                     {
-                        if (show.TheatreRoomId == inDbShow.TheatreRoomId && show.ShowTime.Day == inDbShow.ShowTime.Day && show.ShowTime.Hour == inDbShow.ShowTime.Hour)
+                        bool flag = false;
+
+                        foreach (var inDbShow in alreadyInDbShows)
                         {
-                            flag = false;
-                            break;
+                            if (show.TheatreRoomId == inDbShow.TheatreRoomId && show.ShowTime.Day == inDbShow.ShowTime.Day && show.ShowTime.Hour == inDbShow.ShowTime.Hour)
+                            {
+                                flag = false;
+                                break;
+                            }
+                            else
+                            {
+                                flag = true;
+                            }
                         }
-                        else
-                        {
-                            flag = true;
-                        }
+
+                        if (flag)
+                            finalList.Add(show);
                     }
 
-                    if (flag)
-                        finalList.Add(show);
+                    _db.Shows.AddRange(finalList);
+                    await _db.SaveChangesAsync();
+                    return true;
                 }
-
-                _db.Shows.AddRange(finalList);
-                await _db.SaveChangesAsync();
-                return true;
             }
             catch (Exception ex)
             {
