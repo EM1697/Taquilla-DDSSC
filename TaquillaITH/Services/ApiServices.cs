@@ -150,7 +150,7 @@ namespace TaquillaITH.Services
         {
             try
             {
-                var alreadyinDBShows = _db.Shows.Where(x => !x.IsDeleted).ToList();
+                var alreadyinDBShows = _db.Shows.Where(x => !x.IsDeleted && !string.IsNullOrEmpty(x.UsedSeats)).ToList();
                 _db.Shows.RemoveRange(alreadyinDBShows);
 
                 List<Show> shows = new List<Show>();
@@ -183,7 +183,31 @@ namespace TaquillaITH.Services
         {
             try
             {
-                _db.Movies.AddRange(movieList);
+                List<Movie> finalList = new List<Movie>();
+                var alreadyInDbMovies = _db.Movies.Where(x => !x.IsDeleted).ToList();
+
+                foreach (var movie in movieList)
+                {
+                    bool flag = false;
+
+                    foreach (var inDbMovie in alreadyInDbMovies)
+                    {
+                        if (movie.Name == inDbMovie.Name)
+                        {
+                            flag = false;
+                            break;
+                        }
+                        else
+                        {
+                            flag = true;
+                        }
+                    }
+
+                    if (flag)
+                        finalList.Add(movie);
+                }
+
+                _db.Movies.AddRange(finalList);
                 await _db.SaveChangesAsync();
                 return true;
             }
@@ -193,11 +217,35 @@ namespace TaquillaITH.Services
             }
         }
 
-        public async Task<bool> UpdateNewShows(List<Show> lista)
+        public async Task<bool> UpdateNewShows(List<Show> showsList)
         {
             try
             {
-                _db.Shows.AddRange(lista);
+                List<Show> finalList = new List<Show>();
+                var alreadyInDbShows = _db.Shows.Where(x => !x.IsDeleted).ToList();
+
+                foreach (var show in showsList)
+                {
+                    bool flag = false;
+
+                    foreach (var inDbShow in alreadyInDbShows)
+                    {
+                        if (show.TheatreRoomId == inDbShow.TheatreRoomId && show.ShowTime.Day == inDbShow.ShowTime.Day && show.ShowTime.Hour == inDbShow.ShowTime.Hour)
+                        {
+                            flag = false;
+                            break;
+                        }
+                        else
+                        {
+                            flag = true;
+                        }
+                    }
+
+                    if (flag)
+                        finalList.Add(show);
+                }
+
+                _db.Shows.AddRange(finalList);
                 await _db.SaveChangesAsync();
                 return true;
             }

@@ -70,11 +70,11 @@ namespace TaquillaITH.Controllers
                     var model2 = JsonConvert.DeserializeObject<Pelicula>(resp.Content);
                     if (model2 != null && model2.Agenda.Any())
                     {
-                        var updatedMovies = await _apiServices.DeleteOldMovies(); //Eliminar información de tabla de peliculas
+                        //var updatedMovies = await _apiServices.DeleteOldMovies(); //Eliminar información de tabla de peliculas
 
-                        //Crear lista con info nuev de peliculas
-                        if (updatedMovies)
-                        {
+                        ////Crear lista con info nuev de peliculas
+                        //if (updatedMovies)
+                        //{
                             foreach (var movie in model2.Agenda)
                             {
                                 Random rnd = new Random();
@@ -95,7 +95,7 @@ namespace TaquillaITH.Controllers
                             var examen = await _apiServices.UpdateMovies(Movies);
                             if (!examen)
                                 return BadRequest("Error al momento de actualizar las peliculas recientes");
-                        }
+                        //}
                     }
                     else
                         return BadRequest("Hubo un error al momento de actualizar el catalogo de peliculas");
