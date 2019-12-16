@@ -210,32 +210,32 @@ namespace TaquillaITH.Controllers
 
         #region HTTP Post
         [HttpPost("SelectShowSeats")]
-        public async Task<IActionResult> SelectedSeats(ShowTimeSeatsViewModel seats)
-        {
-            try
-            {
-                var Schedule = Convert.ToDateTime(seats.Horario);
-                var Show = _apiServices.GetShow(seats.IdSala, Schedule);
+        // public async Task<IActionResult> SelectedSeats(ShowTimeSeatsViewModel seats)
+        // {
+        //     try
+        //     {
+        //         var Schedule = Convert.ToDateTime(seats.Horario);
+        //         var Show = _apiServices.GetShow(seats.IdSala, Schedule);
 
-                foreach (var item in seats.AsientosUsados)
-                {
-                    if (string.IsNullOrEmpty(Show.UsedSeats))
-                        Show.UsedSeats += item.ToUpper();
-                    else
-                        Show.UsedSeats += $",{item.ToUpper()}";
-                }
+        //         foreach (var item in seats.AsientosUsados)
+        //         {
+        //             if (string.IsNullOrEmpty(Show.UsedSeats))
+        //                 Show.UsedSeats += item.ToUpper();
+        //             else
+        //                 Show.UsedSeats += $",{item.ToUpper()}";
+        //         }
 
-                bool ShowUpdated = await _apiServices.UpdateShow(Show);
-                if (ShowUpdated)
-                    return Ok();
-                else
-                    return BadRequest("No se puedieron guardar los asientos");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("No se puedieron guardar los asientos debido a " + ex);
-            }
-        }
+        //         bool ShowUpdated = await _apiServices.UpdateShow(Show);
+        //         if (ShowUpdated)
+        //             return Ok();
+        //         else
+        //             return BadRequest("No se puedieron guardar los asientos");
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return BadRequest("No se puedieron guardar los asientos debido a " + ex);
+        //     }
+        // }
 
         [HttpPost("PostTicketSale")]
         public async Task<IActionResult> PostTicketSale(TicketSaleViewModel venta)

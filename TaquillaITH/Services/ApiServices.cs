@@ -36,7 +36,10 @@ namespace TaquillaITH.Services
                 var UsedSeats = Show.UsedSeats.Split(",").ToList();
 
                 foreach (var item in UsedSeats)
-                    Seats.FirstOrDefault(x => x.Name == item).Occupied = true;
+                {
+                    if (item != "")
+                        Seats.FirstOrDefault(x => x.Name == item).Occupied = true;
+                }
 
                 return Seats.GroupBy(x => x.Name.Length == 2 ? x.Name.Substring(1, 1) : x.Name.Substring(2, 1)).Select(x => x.ToList()).ToList();
             }
@@ -56,7 +59,8 @@ namespace TaquillaITH.Services
         {
             try
             {
-                var Shous = _db.Shows.FirstOrDefault(x => x.TheatreRoomId == idSala);
+
+                var Shous = _db.Shows.FirstOrDefault(x => x.TheatreRoomId == idSala && x.ShowTime.Day == (Horario.Day));
 
                 //var alaea = _db.Shows.FirstOrDefault(x => x.TheatreRoomId == idSala && x.ShowTime == Horario);
                 return Shous;
