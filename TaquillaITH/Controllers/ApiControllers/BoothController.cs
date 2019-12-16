@@ -193,14 +193,24 @@ namespace TaquillaITH.Controllers
             {
                 var Schedule = Convert.ToDateTime(seats.Horario);
                 var Show = _apiServices.GetShow(seats.IdSala, Schedule);
+                
+                //if (string.IsNullOrEmpty(Show.UsedSeats))
+                //{
+                //    Show.UsedSeats = "";
+                //}
 
-                foreach (var item in seats.AsientosUsados)
+                if (seats.AsientosUsados != null && seats.AsientosUsados.Any())
                 {
-                    if (string.IsNullOrEmpty(Show.UsedSeats))
-                        Show.UsedSeats += item.ToUpper();
-                    else
-                        Show.UsedSeats += $",{item.ToUpper()}";
+                    foreach (var item in seats.AsientosUsados)
+                    {
+                        if (string.IsNullOrEmpty(Show?.UsedSeats ?? new string("")))
+                            Show.UsedSeats = item.ToUpper();
+                        else
+                            Show.UsedSeats += $",{item.ToUpper()}";
+                    }
                 }
+                else
+                    seats.AsientosUsados = new List<string>();
 
                 bool ShowUpdated = await _apiServices.UpdateShow(Show);
                 if (ShowUpdated)

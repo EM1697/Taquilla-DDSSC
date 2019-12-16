@@ -60,7 +60,7 @@ namespace TaquillaITH.Services
             try
             {
 
-                var Shous = _db.Shows.FirstOrDefault(x => x.TheatreRoomId == idSala && x.ShowTime.Day == (Horario.Day) && x.ShowTime.Hour == Horario.Hour);
+                var Shous = _db.Shows.FirstOrDefault(x => x.TheatreRoomId == idSala && x.ShowTime.Date == Horario.Date && x.ShowTime.Hour == Horario.Hour);
                 return Shous;
             }
             catch (Exception ex)
