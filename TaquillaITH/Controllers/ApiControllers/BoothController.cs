@@ -54,6 +54,7 @@ namespace TaquillaITH.Controllers
         {
             try
             {
+                #region Get Movies
                 //Llamado api a Renee
                 var req = new RestRequest("http://peliculaapi.gearhostpreview.com/index.php/Cartelera/agenda")
                 {
@@ -76,10 +77,13 @@ namespace TaquillaITH.Controllers
                         {
                             foreach (var movie in model2.Agenda)
                             {
+                                Random rnd = new Random();
+                                int random = rnd.Next(9, 20);
+
                                 var peli = new Movie
                                 {
                                     Name = movie.Titulo,
-                                    Schedule = movie.Horarios,
+                                    Schedule = movie.Horarios ?? $"{random}:00",
                                     Genre = movie.Categoria,
                                     RunningTime = movie.Duracion,
                                     Synopsis = movie.Sinopsis,
@@ -96,14 +100,13 @@ namespace TaquillaITH.Controllers
                     else
                         return BadRequest("Hubo un error al momento de actualizar el catalogo de peliculas");
                 }
+                #endregion
 
-                //Agregar lista de pekiculas nuevas a la tabla de peliculas
-                // await _apiServices.UpdateShows(Movies);
-
+                #region Shows
                 //Crear nuevos shows de peliculas
                 DateTime date = DateTime.Now;
                 List<Show> newShows = new List<Show>();
-                if (date.DayOfWeek.ToString() == "Sunday")
+                if (date.DayOfWeek.ToString() == "Sunday" || date.DayOfWeek.ToString() == "Monday")
                 {
                     List<Movie> newMovies = new List<Movie>();
                     newMovies = _apiServices.GetMovies(); //Lista de peliculas nuevas
@@ -129,12 +132,17 @@ namespace TaquillaITH.Controllers
                     }
                     await _apiServices.UpdateNewShows(newShows);
                 }
-
                 //Get de Shows
                 var model = _apiServices.GetShowTimes();
                 foreach (var data in model)
-                    data.horarios = data?.horario?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string> { "12:00" };
+                {
+                    Random rnd = new Random();
+                    int random = rnd.Next(9, 20);
+                    data.horarios = data?.horario?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string> { $"{random}:00" };
+                }
+                #endregion
 
+                #region Promociones
                 //Llamado api de Promociones - Julio
                 var promoRequest = new RestRequest("http://cinefinanzas.gear.host/api/Finance/Promotions")
                 {
@@ -145,31 +153,52 @@ namespace TaquillaITH.Controllers
 
                 //Obtener cartelera de gestion de peliculas
                 var promoResponse = await _client.ExecuteGetTaskAsync(promoRequest);
-                List<Promotion> Promotions = new List<Promotion>();
+                List<PromotionsViewModel> Promotions = new List<PromotionsViewModel>();
                 if (promoResponse.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    PromotionsViewModel ApiPromos = JsonConvert.DeserializeObject<PromotionsViewModel>(promoResponse.Content);
+                    var ApiPromos = JsonConvert.DeserializeObject<PromotionsListViewModel>(promoResponse.Content);
+                    foreach (var item in ApiPromos.Promotions)
+                        Promotions.Add(item);
                 }
                 else
                     return BadRequest("Error al mostrar las promociones.");
+                #endregion
 
-                var movies = model.Select(x => new
+                var JsonReturn = Movies.Select(x=> new 
                 {
-                    pelicula = x.nombre,
-                    x.horarios,
-                    x.sala,
-                    x.duracion,
-                    x.sinopsis,
-                    x.genero,
+                    pelicula = x.Name,
+                    horarios = x?.Schedule?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string> { "12:00" },
+                    sala = x.Num_Sala,
+                    duracion = x.RunningTime,
+                    sinopsis = x.Synopsis,
+                    genero = x.Genre,
                     precioBoletos = new
                     {
-                        boletoNormal = new { precioNormal = 50, precioDescontado = Promotions.FirstOrDefault(x=>x.Price == 40) },
-                        boleto3D = new { precioNormal = 60, precioDescontado = Promotions.FirstOrDefault(x => x.Price == 50) },
-                        boletoVIP = new { precioNormal = 70, precioDescontado = Promotions.FirstOrDefault(x => x.Price == 60) }
+                        boletoNormal = Promotions[0].Price,
+                        boleto3D = Promotions[1].Price,
+                        boletoVIP = Promotions[2].Price
                     },
-                    x.photoUrl
+                    photoUrl = x.PhotoUrl
                 });
-                return Ok(movies);
+
+                return Ok(JsonReturn);
+                //var movies = model.Select(x => new
+                //{
+                //    pelicula = x.nombre,
+                //    x.horarios,
+                //    x.sala,
+                //    x.duracion,
+                //    x.sinopsis,
+                //    x.genero,
+                //    precioBoletos = new
+                //    {
+                //        boletoNormal = Promotions[0].Price,
+                //        boleto3D = Promotions[1].Price,
+                //        boletoVIP = Promotions[2].Price
+                //    },
+                //    x.photoUrl
+                //});
+                //return Ok(movies);
             }
             catch (Exception ex)
             {

@@ -56,7 +56,10 @@ namespace TaquillaITH.Services
         {
             try
             {
-                return _db.Shows.FirstOrDefault(x => x.TheatreRoomId == idSala && x.ShowTime == Horario);
+                var Shous = _db.Shows.FirstOrDefault(x => x.TheatreRoomId == idSala);
+
+                //var alaea = _db.Shows.FirstOrDefault(x => x.TheatreRoomId == idSala && x.ShowTime == Horario);
+                return Shous;
             }
             catch (Exception ex)
             {

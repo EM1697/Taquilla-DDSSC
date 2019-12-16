@@ -5,12 +5,20 @@ using System.Collections.Generic;
 using System.Linq;
 using CineTaquilla.Helpers;
 using System.ComponentModel.DataAnnotations;
-using TaquillaITH.Models.DTO;
 
 namespace TaquillaITH.ViewModels
 {
     public class PromotionsViewModel
     {
-        List<Promotion> Promotions { get; set; }
+        public string ProductId { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+    }
+
+    public class PromotionsListViewModel
+    {
+        public List<PromotionsViewModel> Promotions { get; set; }
     }
 }
