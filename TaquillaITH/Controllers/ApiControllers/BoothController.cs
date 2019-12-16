@@ -103,7 +103,7 @@ namespace TaquillaITH.Controllers
                 //Crear nuevos shows de peliculas
                 DateTime date = DateTime.Now;
                 List<Show> newShows = new List<Show>();
-                if (date.DayOfWeek.ToString() == "Saturday")
+                if (date.DayOfWeek.ToString() == "Sunday")
                 {
                     List<Movie> newMovies = new List<Movie>();
                     newMovies = _apiServices.GetMovies(); //Lista de peliculas nuevas
@@ -112,9 +112,6 @@ namespace TaquillaITH.Controllers
                         List<String> newHorarios = movie?.Schedule?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string> { "12:00" };
                         foreach (var hora in newHorarios) //Cada horario por pelicula
                         {
-                            // foreach (var dia in Enum.GetNames(typeof(DayOfWeek))) //Cada dia de la semana
-                            // {
-                            // }
                             DateTime date2 = date;
                             for (int i = 0; i < 7; i++)
                             {
@@ -152,7 +149,6 @@ namespace TaquillaITH.Controllers
                 if (promoResponse.StatusCode == System.Net.HttpStatusCode.OK)
                 {
                     PromotionsViewModel ApiPromos = JsonConvert.DeserializeObject<PromotionsViewModel>(promoResponse.Content);
-
                 }
                 else
                     return BadRequest("Error al mostrar las promociones.");
