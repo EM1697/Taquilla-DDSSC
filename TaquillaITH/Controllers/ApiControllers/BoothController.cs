@@ -229,8 +229,6 @@ namespace TaquillaITH.Controllers
         {
             try
             {
-                venta.Puntos = Convert.ToInt32(Math.Truncate(venta.Total * 1.10));
-
                 //Membresia
                 var membershipRequest = new RestRequest("https://membresiascomplejo.azurewebsites.net/api/membresias/solicitardatos")
                 {
@@ -253,7 +251,7 @@ namespace TaquillaITH.Controllers
 
                     var pointsModel = new
                     {
-                        Id_Membresia = 9,
+                        Id_Membresia = Convert.ToInt32(venta.Codigo_Cliente),
                         Id_Punto_Venta = 1,
                         Puntos_Generados = venta.Puntos
                     };
