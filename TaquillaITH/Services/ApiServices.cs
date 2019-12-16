@@ -85,7 +85,7 @@ namespace TaquillaITH.Services
                                 genero = m.Genre,
                                 sinopsis = m.Synopsis,
                                 duracion = m.RunningTime.ToString(),
-                                photoUrl = m.PhotoUrl
+                                photoUrl = m.PhotoUrl,
                             }).ToList();
 
                 return data;
