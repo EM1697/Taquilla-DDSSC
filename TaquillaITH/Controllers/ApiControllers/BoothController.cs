@@ -39,7 +39,7 @@ namespace TaquillaITH.Controllers
                 var model = _apiServices.GetShowSeats(idSala, Horario);
 
                 if (model == null)
-                    return BadRequest("Obtener el catálogo de asientos falló");
+                    return BadRequest("No hay ningna funcion disponible en esta sala a esta hora.");
 
                 return Ok(model);
             }
@@ -138,6 +138,25 @@ namespace TaquillaITH.Controllers
                 foreach (var data in model)
                     data.horarios = data?.horario?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string> { "12:00" };
 
+                //Llamado api de Promociones - Julio
+                var promoRequest = new RestRequest("http://cinefinanzas.gear.host/api/Finance/Promotions")
+                {
+                    Method = Method.GET,
+                    RequestFormat = DataFormat.Json
+                };
+                promoRequest.AddQueryParameter("DepartmentKey", "1");
+
+                //Obtener cartelera de gestion de peliculas
+                var promoResponse = await _client.ExecuteGetTaskAsync(promoRequest);
+                List<Promotion> Promotions = new List<Promotion>();
+                if (promoResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    PromotionsViewModel ApiPromos = JsonConvert.DeserializeObject<PromotionsViewModel>(promoResponse.Content);
+
+                }
+                else
+                    return BadRequest("Error al mostrar las promociones.");
+
                 var movies = model.Select(x => new
                 {
                     pelicula = x.nombre,
@@ -148,9 +167,9 @@ namespace TaquillaITH.Controllers
                     x.genero,
                     precioBoletos = new
                     {
-                        boletoNormal = 50,
-                        boleto3D = 60,
-                        boletoVIP = 70
+                        boletoNormal = new { precioNormal = 50, precioDescontado = Promotions.FirstOrDefault(x=>x.Price == 40) },
+                        boleto3D = new { precioNormal = 60, precioDescontado = Promotions.FirstOrDefault(x => x.Price == 50) },
+                        boletoVIP = new { precioNormal = 70, precioDescontado = Promotions.FirstOrDefault(x => x.Price == 60) }
                     },
                     x.photoUrl
                 });
