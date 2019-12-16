@@ -12,6 +12,6 @@ namespace TaquillaITH.Models.DTO
         public string nombre { get; set; }
         public string password { get; set; }
         public string porcentaje { get; set; }
-        public int puntos { get; set; }
+        public decimal puntos { get; set; }
     }
 }
