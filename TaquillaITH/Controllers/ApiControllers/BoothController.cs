@@ -264,6 +264,30 @@ namespace TaquillaITH.Controllers
                     if (pointsResponse.StatusCode != System.Net.HttpStatusCode.OK)
                         return BadRequest("Ocurrio un error al momento de generar los puntos");
 
+                    //Banquito
+                    var bankRequest = new RestRequest("http://138.68.6.44:8000/api/transacciones/transferencias/")
+                    {
+                        Method = Method.POST,
+                        RequestFormat = DataFormat.Json,
+                    };
+
+                    var bankModel = new
+                    {
+                        tarjeta_origen = "5050543614668653",
+                        tarjeta_destino = "5050464168614617",
+	                    cvv = "078",
+	                    fecha_vencimiento = "12/21",
+	                    monto = venta.Total
+                    };
+
+                    bankRequest.AddJsonBody(bankModel);
+                    var bankResponse = await _client.ExecutePostTaskAsync(bankRequest);
+
+                    if (bankResponse.StatusCode != System.Net.HttpStatusCode.OK)
+                        return BadRequest("Ocurrio un error al momento de la transaccion");
+
+                    //Banquito
+
                     bool Registred = await _apiServices.RegisterSale(venta);
 
                     if (!Registred)
