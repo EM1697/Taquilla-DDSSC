@@ -229,72 +229,72 @@ namespace TaquillaITH.Controllers
         {
             try
             {
-                //Membresia
-                var membershipRequest = new RestRequest("https://membresiascomplejo.azurewebsites.net/api/membresias/solicitardatos")
+                ////Membresia
+                //var membershipRequest = new RestRequest("https://membresiascomplejo.azurewebsites.net/api/membresias/solicitardatos")
+                //{
+                //    Method = Method.GET,
+                //    RequestFormat = DataFormat.Json
+                //};
+                //membershipRequest.AddQueryParameter("id", "9");
+                //var membershipResponse = await _client.ExecuteGetTaskAsync(membershipRequest);
+
+                //if (membershipResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                //{
+                //    var Membership = JsonConvert.DeserializeObject<Membresia>(membershipResponse.Content);
+
+                //    //Generar Puntos
+                //    var pointsRequest = new RestRequest("https://membresiascomplejo.azurewebsites.net/api/membresias/GenerarPuntos")
+                //    {
+                //        Method = Method.POST,
+                //        RequestFormat = DataFormat.Json
+                //    };
+
+                //    var pointsModel = new
+                //    {
+                //        Id_Membresia = Convert.ToInt32(venta.Codigo_Cliente),
+                //        Id_Punto_Venta = 1,
+                //        Puntos_Generados = venta.Puntos
+                //    };
+
+                //    pointsRequest.AddJsonBody(pointsModel);
+                //    var pointsResponse = await _client.ExecutePostTaskAsync(pointsRequest);
+
+                //    if (pointsResponse.StatusCode != System.Net.HttpStatusCode.OK)
+                //        return BadRequest("Ocurrio un error al momento de generar los puntos");
+
+                //Banquito
+                var bankRequest = new RestRequest("http://138.68.6.44:8000/api/transacciones/transferencias/")
                 {
-                    Method = Method.GET,
-                    RequestFormat = DataFormat.Json
+                    Method = Method.POST,
+                    RequestFormat = DataFormat.Json,
                 };
-                membershipRequest.AddQueryParameter("id", "9");
-                var membershipResponse = await _client.ExecuteGetTaskAsync(membershipRequest);
 
-                if (membershipResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                var bankModel = new
                 {
-                    var Membership = JsonConvert.DeserializeObject<Membresia>(membershipResponse.Content);
+                    tarjeta_origen = "5050543614668653",
+                    tarjeta_destino = "5050464168614617",
+	                cvv = "078",
+	                fecha_vencimiento = "12/21",
+	                monto = venta.Total
+                };
 
-                    //Generar Puntos
-                    var pointsRequest = new RestRequest("https://membresiascomplejo.azurewebsites.net/api/membresias/GenerarPuntos")
-                    {
-                        Method = Method.POST,
-                        RequestFormat = DataFormat.Json
-                    };
+                bankRequest.AddJsonBody(bankModel);
+                var bankResponse = await _client.ExecutePostTaskAsync(bankRequest);
 
-                    var pointsModel = new
-                    {
-                        Id_Membresia = Convert.ToInt32(venta.Codigo_Cliente),
-                        Id_Punto_Venta = 1,
-                        Puntos_Generados = venta.Puntos
-                    };
+                if (bankResponse.StatusCode != System.Net.HttpStatusCode.OK)
+                    return BadRequest("Ocurrio un error al momento de la transaccion");
 
-                    pointsRequest.AddJsonBody(pointsModel);
-                    var pointsResponse = await _client.ExecutePostTaskAsync(pointsRequest);
+                //Banquito
 
-                    if (pointsResponse.StatusCode != System.Net.HttpStatusCode.OK)
-                        return BadRequest("Ocurrio un error al momento de generar los puntos");
+                bool Registred = await _apiServices.RegisterSale(venta);
 
-                    //Banquito
-                    var bankRequest = new RestRequest("http://138.68.6.44:8000/api/transacciones/transferencias/")
-                    {
-                        Method = Method.POST,
-                        RequestFormat = DataFormat.Json,
-                    };
+                if (!Registred)
+                    return BadRequest("No se pudo guardar la venta debido a un error en el servidor");
 
-                    var bankModel = new
-                    {
-                        tarjeta_origen = "5050543614668653",
-                        tarjeta_destino = "5050464168614617",
-	                    cvv = "078",
-	                    fecha_vencimiento = "12/21",
-	                    monto = venta.Total
-                    };
-
-                    bankRequest.AddJsonBody(bankModel);
-                    var bankResponse = await _client.ExecutePostTaskAsync(bankRequest);
-
-                    if (bankResponse.StatusCode != System.Net.HttpStatusCode.OK)
-                        return BadRequest("Ocurrio un error al momento de la transaccion");
-
-                    //Banquito
-
-                    bool Registred = await _apiServices.RegisterSale(venta);
-
-                    if (!Registred)
-                        return BadRequest("No se pudo guardar la venta debido a un error en el servidor");
-
-                    return Ok();
-                }
-                else
-                    return BadRequest("Error al cargar la membresia");
+                return Ok();
+                //}
+                //else
+                //    return BadRequest("Error al cargar la membresia");
             }
             catch (Exception ex)
             {
