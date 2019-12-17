@@ -34,7 +34,6 @@
                 <th scope="col">Efectivo</th>
                 <th scope="col">Credito</th>
                 <th scope="col">Puntos</th>
-                <th scope="col">Monto Total</th>
                 <th scope="col">Nombre</th>
                 <th scope="col">Horarios</th>
                 <th scope="col">Duración</th>
@@ -51,26 +50,45 @@
 
 <script>
     function dateO() {
-        var date = $("#date").val();
+        var rey = $("#date").val();
         $.ajax({
             type: "POST",
             url: "/Home/PostTodoItem",
             data: { "date": $("#date").val()},
-            success: function (msg) {
-                alert("Corte realizado con exito");
+            success: function (data) {
+                alert("Se realizó el corte con éxito")
+                window.location.replace("/Home/Corte?date=" + rey + " 13:09:00");
+                //$.ajax({
+                //    url: "/Home/Corte",
+                //    data: { "date": $("#date").val()},
+                //    success: function (data) {
+                //        alert('Aspiro');
+                //    },
+                //    error: function (xhr) {
+                //        alert('Error: ' + xhr.statusText);
+                //    }
+                //});
             },
             error: function (xhr) {
                 alert('Error: ' + xhr.statusText);
             },
         });
     }
-    $( document ).ready(function() {
-        $( "#date" ).change(function() {
-                    var daySpace="";
+    $(document).ready(function () {
+        $(document).ready(function () {
+        var date = new Date();
+        var day = date.getDate();
+        var month = date.getMonth() + 1;
+        var year = date.getFullYear();
+        if (month < 10) month = "0" + month;
+        if (day < 10) day = "0" + day;
+
+        var today = year + "-" + month + "-" + day;
+
+            $('#date').val(today);
+                                var daySpace="";
                     var date = new Date($("input").val());
                     var day = date.getDate() +1;       // yields date
-                    console.log((day.toString()).length);
-                    console.log(day);
                     (day.toString()).length == 1 ? daySpace="0" : day;
                     var month = date.getMonth() +1;   // yields month (add one as '.getMonth()' is zero indexed)
                     var year = date.getFullYear();  // yields year
@@ -79,15 +97,45 @@
                     var second = date.getSeconds(); // yields seconds
                     // After this construct a string with the above results as below
                     var time = year + "-" + month + "-" + daySpace + day + " " + "13:09:00"; 
-                    console.log(time);
                     $.ajax({
                         url: "/Home/DaySales",
                         type: 'GET',
                         data: {'date':time},
-                        success: function(data) {
+                        success: function (data) {
+                            for (var item in data) {
+                                console.log(item.TotalAmount);
+                            }
                             loadData(data);
                             console.log("Success");
-                            console.log(data[0].userId);
+                            return data; 
+                        }
+                    });
+    });
+
+          
+        
+        $("#date").change(function () {
+                    var daySpace="";
+                    var date = new Date($("input").val());
+                    var day = date.getDate() +1;       // yields date
+                    (day.toString()).length == 1 ? daySpace="0" : day;
+                    var month = date.getMonth() +1;   // yields month (add one as '.getMonth()' is zero indexed)
+                    var year = date.getFullYear();  // yields year
+                    var hour = date.getHours();     // yields hours 
+                    var minute = date.getMinutes(); // yields minutes
+                    var second = date.getSeconds(); // yields seconds
+                    // After this construct a string with the above results as below
+                    var time = year + "-" + month + "-" + daySpace + day + " " + "13:09:00"; 
+                    $.ajax({
+                        url: "/Home/DaySales",
+                        type: 'GET',
+                        data: {'date':time},
+                        success: function (data) {
+                            for (var item in data) {
+                                console.log(item.TotalAmount);
+                            }
+                            loadData(data);
+                            console.log("Success");
                             return data; 
                         }
                     });
@@ -96,6 +144,57 @@
 
 function loadData(data){
         $("#body").empty();
+    if (data[0] != null) {
+        data.forEach(function (element) {
+            var tr = document.createElement("tr");
+            var td1 = document.createElement("td");
+            var td2 = document.createElement("td");
+            var td3 = document.createElement("td");
+            var td4 = document.createElement("td");
+            var td5 = document.createElement("td");
+            var td6 = document.createElement("td");
+            var td8 = document.createElement("td");
+            var td9 = document.createElement("td");
+            var td10 = document.createElement("td");
+            td1.innerHTML = element.userId;
+            switch (element.tipoBoletoId) {
+                case 0:
+                    td2.innerHTML = "Boleto normal"; break;
+                case 1:
+                    td2.innerHTML = "Boleto 3D"; break;
+                case 2:
+                    td2.innerHTML = "Boleto VIP"; break;
+                default: break;
+            }
+
+            td3.innerHTML = element.saleDate;
+            td4.innerHTML = "$" + element.cash + ".00";
+            td5.innerHTML = "$" + element.creditCard + ".00";
+            td6.innerHTML = element.rewardPoints;
+            td8.innerHTML = element.name;
+            td9.innerHTML = element.time;
+            td10.innerHTML = element.runningTime + " min.";
+            tr.append(td1, td2, td3, td4, td5, td6, td8, td9, td10);
+            $("#body").append(tr);
+        })
+    }
+    else {
+        var tr = document.createElement("tr");
+        var td1 = document.createElement("td");
+        td1.innerHTML = "No hay ventas que mostrar ese dia";
+        td1.attributes = "coslspan"
+        tr.append(td1);
+        $("#body").append(tr);
+    }
+}
+
+
+
+
+
+    function corte() {
+        $("#body").empty();
+
         if(data[0] != null){
                 data.forEach(function(element){
             var tr = document.createElement("tr");
@@ -105,7 +204,6 @@ function loadData(data){
             var td4 = document.createElement("td");
             var td5 = document.createElement("td");
             var td6 = document.createElement("td");
-            var td7 = document.createElement("td");
             var td8 = document.createElement("td");
             var td9 = document.createElement("td");
             var td10 = document.createElement("td");
@@ -124,14 +222,14 @@ function loadData(data){
             td4.innerHTML ="$"+element.cash+".00";
             td5.innerHTML ="$"+element.creditCard+".00";
             td6.innerHTML =element.rewardPoints;
-            td7.innerHTML ="$"+element.totalAmount+".00";
             td8.innerHTML =element.name;
-            td9.innerHTML =element.schedule;
+            td9.innerHTML =element.time;
             td10.innerHTML =element.runningTime+" min.";
-            tr.append(td1, td2, td3, td4, td5, td6, td7, td8, td9, td10);
+            tr.append(td1, td2, td3, td4, td5, td6, td8, td9, td10);
             $("#body").append(tr);
         }) 
     }
-}
+    }
+
 
 </script>

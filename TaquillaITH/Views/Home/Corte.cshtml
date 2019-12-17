@@ -1,0 +1,119 @@
+﻿@using TaquillaITH.ViewModels
+@{
+    List<DaySalesViewModel> daySales = ViewBag.DaySales;
+    var normalQuantity = 0;
+    var threeQuantity = 0;
+    var vipQuantity = 0;
+    var normalAmount = 0;
+    var threeAmount = 0;
+    var vipAmount = 0;
+    var cash = 0.0M;
+    var credit = 0.0M;
+    var points = 0.0M;
+    var totalAmount = 0.0M;
+    var date = daySales.FirstOrDefault().SaleDate;
+}
+<div class="text-center container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4">Corte generado</h1>
+        </div>
+    </div>
+    <div class="row mt-2 justify-content-md-center">
+        <div class="col-6">
+            <p>Al dia de: @date</p>
+        </div>
+    </div>
+        <div class="row mt-2 justify-content-md-center">
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div id="container">
+
+                <div style="text-align:left;">
+                    @foreach (var item in daySales)
+                    {
+                        <p><b>Venta: </b>@item.saleId</p>
+                        <p><b>Película: </b>@item.Name</p>
+                        <p><b>Horario: </b>@item.time</p>
+                        <p><b>Tipo de boleto: </b>@item.TipoBoletoId</p>
+                        <p><b>Efectivo: </b>@item.Cash</p>
+                        <p><b>Credito: </b>@item.CreditCard</p>
+                        <p><b>Credito: </b>@item.RewardPoints</p>
+                        <p><b>Total: </b>@item.TotalAmount</p
+                        <p><b>Credito: </b>@item.TipoBoletoId</p>
+                        <p>------</p>
+                        <br />
+                        <br />
+                    }
+                </div>
+
+
+
+
+
+                <!--
+<table class="table table-dark mt-3">
+            <thead>
+                <tr>
+                <th scope="col">Boletos Normales</th>
+                <th scope="col">Boletos 3D</th>
+                <th scope="col">Boletos VIP</th>
+                <th scope="col">Efectivo</th>
+                <th scope="col">Credito</th>
+                <th scope="col">Puntos</th>
+                </tr>
+                <tr>
+                    @foreach (var item in daySales)
+                    {
+                        switch (item.TipoBoletoId)
+                        {
+                            case CineTaquilla.Helpers.TicketType.NormalTicket: normalQuantity++;
+                            normalAmount += 50; break;
+                            case CineTaquilla.Helpers.TicketType.Ticket3D: threeQuantity++;
+                            threeAmount += 60; break;
+                            case CineTaquilla.Helpers.TicketType.VipTicket: vipQuantity++;
+                            vipAmount += 70; break;
+                            default:  break;
+                        }
+                        cash += item.Cash;
+                        credit += item.CreditCard;
+                        points += item.RewardPoints;
+                        totalAmount += item.TotalAmount;
+                    }
+                <td>@normalQuantity</td>
+                <td>@threeQuantity</td>
+                <td>@vipQuantity</td>
+                <td>$@cash</td>
+                <td>$@credit</td>
+                <td>@points</td>
+                </tr>
+                <tr>
+                    <td>Total de las ventas:</td>
+                    <td>$@totalAmount</td>
+                </tr>
+            </thead>
+            <tbody id="body">
+            </tbody>
+            </table>
+-->
+            
+                <div style="text-align:left">
+                    <h2>Resumen general del corte</h2>
+                    <p><b>Boletos Normales: </b><span>@normalQuantity</span></p>
+                    <p><emsp></emsp><b>Total de boletos Normales: </b><span>@normalAmount</span></p>
+                    <p><b>Boletos 3D: </b><span>@threeQuantity</span></p>
+                    <p><emsp></emsp><b>Total de boletos 3D: </b><span>@threeAmount</span></p>
+                    <p><b>Boletos VIP: </b><span>@vipQuantity</span></p>
+                    <p><emsp></emsp><b>Total de boletos VIP: </b><span>@vipAmount</span></p>
+                    <p><b>Efectivo: </b><span>$@cash</span></p>
+                    <p><b>Credito: </b><span>$@credit</span></p>
+                    <p><b>Puntos: </b><span>@points</span></p>
+                    <p><b>Suma total: </b><span>$@totalAmount</span></p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+        <button id="unnskyld" type="button" onclick="window.location.href='/Home/Index'" class="btn btn-outline-dark mt-4">Volver a inicio</button>
+</div>

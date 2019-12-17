@@ -31,5 +31,7 @@ namespace TaquillaITH.ViewModels
         public string Name { get; set; }
         public string Schedule { get; set; }
         public string RunningTime { get; set; }
+        public string time { get; set; }
+        public int saleId { get; set; }
     }
 }

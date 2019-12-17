@@ -37,6 +37,12 @@ namespace TaquillaITH.Controllers
             // ViewData["DaySales"] = sales;
             return View();
         }
+        public IActionResult Corte(string date)
+        {
+            var daySales = _sc.GetDaySales(date);
+            ViewBag.DaySales = daySales;
+            return View();
+        }
 
         public IActionResult Privacy()
         {
@@ -100,7 +106,7 @@ namespace TaquillaITH.Controllers
                         break;
                     case CineTaquilla.Helpers.TicketType.VipTicket:
                         VipTicket += 1;
-                        nombre = "Boleto VIP";
+                        nombre = "Boleto VIP";  
                         precio = 70;
                         break;
                     default:
@@ -157,7 +163,7 @@ namespace TaquillaITH.Controllers
                     req.AddJsonBody(model);
                     var resp = await _client.ExecutePostTaskAsync(req);
                     if (resp.StatusCode == System.Net.HttpStatusCode.OK)
-                        return Ok("Se guardarón correctamente");
+                        return Ok(model);
                     return BadRequest("Se realizó el corte pero no se guardaron los registros en la base de datos de finanzas");
                 }
                 catch (Exception ex)
