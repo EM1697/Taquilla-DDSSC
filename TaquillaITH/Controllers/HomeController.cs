@@ -48,6 +48,10 @@ namespace TaquillaITH.Controllers
         {
             return View();
         }
+        public IActionResult _Step3()
+        {
+            return View();
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
