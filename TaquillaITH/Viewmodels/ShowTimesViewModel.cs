@@ -16,5 +16,7 @@ namespace TaquillaITH.ViewModels
         public string duracion {get; set;}
         public string sinopsis {get; set;}
         public string photoUrl {get; set; }
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
     }
 }
