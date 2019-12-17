@@ -1,7 +1,6 @@
 ﻿@model List<TaquillaITH.Models.Movie>
 @{
     ViewData["Title"] = "Venta de boletos";
-    var date = DateTime.Now;
 }
 <div id="Step1">
     <div class="text-center container">
@@ -32,14 +31,15 @@
                         <br/>
                         @foreach (var schedule in item?.Schedule?.Replace(" ", string.Empty).Split(',').ToList())
                         {
-                            <button type="button" value="@schedule" class="btn btn-primary mt-2 ml-2" onclick="ToggleSelect(@item.Id, @schedule)"
+                            var horario = schedule;
+                            <button type="button" value="@schedule" class="btn btn-primary mt-2 ml-2" onclick="ToggleSelect(@item.Id, '@horario')"
                                     data-toggle="button" aria-pressed="false" autocomplete="off" id="MovieId-@item.Id">
                               @schedule
                             </button>
                         }
                         <br />
                         <div id="@item.Id" class="mt-2 SelectTicket" style="display:none;">
-                            <select>
+                            <select id="mySelect-@item.Id">
                                 <option selected disabled>Seleccione un tipo de boleto</option>
                                 <option value="boletoNormal"> Boleto Normal</option>
                                 <option value="boleto3D"> Boleto 3D</option>
@@ -48,10 +48,15 @@
 
                             <div class="form-group">
                                 <label class="control-label">Cantidad</label>
-                                <input class="form-control" type="number" max="10" min="1" />
+                                <input class="form-control" type="number" max="10" min="1" id="ticketAmount" />
                             </div>
 
-                            <button class="btn btn-outline-success" id="btnSelectButton" onCl> Seleccionar función</button>
+                            <label>Sala: @item.Num_Sala</label>
+                            <br />
+                            <label>Duración: @item.RunningTime</label>
+                            <br />
+
+                            <button class="btn btn-outline-success" id="btnSelectButton" onclick="SelectShowTime(@item.Id,@item.Num_Sala)"> Seleccionar función</button>
                         </div>
                     </div>
                     <hr/>
@@ -66,12 +71,16 @@
 </div>
 
 <script>
-    var selectedSchedule = "";
-    var selectedMovieId = 0;
+
+
+    var selectedSchedule = ""; 
+    var selectedMovieId =  0;
+    var TheatreRoom =  0;               
+    var ticketAmount = 0;
+    var selectedTicket = "";
 
     function ToggleSelect(id, schedule)
     {
-        debugger;
         $('#' + id).toggle();
         selectedMovieId = id;
         selectedSchedule = schedule;
@@ -84,15 +93,38 @@
         var year = date.getFullYear();
         if (month < 10) month = "0" + month;
         if (day < 10) day = "0" + day;
-
         var today = year + "-" + month + "-" + day;
 
-        $('#datePicker').val(today);
+        $("#datePicker").val(today);
     });
 
-    function ToStep2()
+    $("#datePicker").change(function () {
+        var daySpace="";
+        var date = new Date($("input").val());
+        var day = date.getDate() +1;
+        (day.toString()).length == 1 ? daySpace="0" : day;
+        var month = date.getMonth() +1;
+        var year = date.getFullYear();
+        var time = year + "-" + month + "-" + daySpace + day + " " + "13:09:00"; 
+        $.ajax({
+            url: "/TicketSale/Step1",
+            type: 'GET',
+            data: { 'date': time },
+            success: function (data) {
+                window.location.href = "/TicketSale/Step1?date="+time;
+            }, error: function (data) {
+                window.location.href = "/TicketSale/Step1?date="+time;
+            }
+        });
+    });
+
+    function SelectShowTime(id, Num_sala)
     {
-        
+        TheatreRoom = Num_sala;
+        ticketAmount = $("#ticketAmount").val();
+        selectedTicket = $("#mySelect-"+id+" :selected").val();
+        $("#Step1").toggle();
+        $("#Step2").toggle();
     }
 
     //$( "#target" ).click(function() {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -27,10 +28,30 @@ namespace TaquillaITH.Controllers
             _client = new RestClient();
         }
 
-        public IActionResult Step1(EverythingViewModel model)
+        public IActionResult Step1(EverythingViewModel model, string date)
         {
-            var Movies = _sc.GetMovies().ToList();
-            return View(Movies);
+            try
+            {
+                var FinalDate = new DateTime();
+
+                if (!string.IsNullOrEmpty(date))
+                {
+                    FinalDate = Convert.ToDateTime(date);
+                }
+                else
+                    FinalDate = DateTime.Now;
+
+                var Movies = _sc.GetMovies(FinalDate).ToList();
+
+                if (Movies.Any())
+                    return View(Movies);
+                else
+                    return NotFound("No se encontraron funciones en esta fecha.");
+            }
+            catch (Exception ex)
+            {
+                return NotFound("No se encontraron funciones en esta fecha.");
+            }
         }
 
         public IActionResult FromStep1To2(EverythingViewModel model)
