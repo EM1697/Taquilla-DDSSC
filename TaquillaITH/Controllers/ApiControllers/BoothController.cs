@@ -50,10 +50,16 @@ namespace TaquillaITH.Controllers
         }
 
         [HttpGet("GetShowTimes")]
-        public async Task<IActionResult> GetShowTimes()
+        public async Task<IActionResult> GetShowTimes(string fecha22)
         {
             try
             {
+                DateTime pitote = new DateTime();
+                if (!string.IsNullOrEmpty(fecha22))
+                    pitote = Convert.ToDateTime(fecha22);
+                else
+                    pitote = DateTime.Now;
+
                 #region Get Movies
                 //Llamado api a Renee
                 var req = new RestRequest("http://peliculaapi.gearhostpreview.com/index.php/Cartelera/agenda")
@@ -83,7 +89,9 @@ namespace TaquillaITH.Controllers
                                 RunningTime = movie.Duracion,
                                 Synopsis = movie.Sinopsis,
                                 Num_Sala = movie.Num_Sala,
-                                PhotoUrl = movie.Portada
+                                PhotoUrl = movie.Portada,
+                                Fecha_inicio = movie.Fecha_inicio,
+                                Fecha_final = movie.Fecha_final
                             };
                             Movies.Add(peli);
                         }
@@ -100,27 +108,27 @@ namespace TaquillaITH.Controllers
                 //Crear nuevos shows de peliculas
                 DateTime date = DateTime.Now;
                 List<Show> newShows = new List<Show>();
-                if (date.DayOfWeek.ToString() == "Sunday" || date.DayOfWeek.ToString() == "Monday")
+                List<Movie> newMovies = new List<Movie>();
+                if (date.DayOfWeek.ToString() == "Sunday" || date.DayOfWeek.ToString() == "Monday" || date.DayOfWeek.ToString() == "Tuesday")
                 {
-                    List<Movie> newMovies = new List<Movie>();
-                    newMovies = _apiServices.GetMovies(); //Lista de peliculas nuevas
+                    newMovies = _apiServices.GetMovies(pitote); //Lista de peliculas nuevas
                     foreach (Movie movie in newMovies) //Recorrer cada pelicula
                     {
                         List<String> newHorarios = movie?.Schedule?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string> { "12:00" };
                         foreach (var hora in newHorarios) //Cada horario por pelicula
                         {
-                            DateTime date2 = date;
-                            for (int i = 0; i < 7; i++)
+                            DateTime fecha = movie.Fecha_inicio;
+                            for (int i = movie.Fecha_inicio.Day; i <= movie.Fecha_final.Day; i++)
                             {
                                 var show = new Show() //Crear nuevo show
                                 {
                                     MovieId = movie.Id,
                                     TheatreRoomId = movie.Num_Sala,
-                                    ShowTime = Convert.ToDateTime($"{date2.Year}-{date2.Month}-{date2.Day} {hora}"),
+                                    ShowTime = Convert.ToDateTime($"{fecha.Year}-{fecha.Month}-{fecha.Day} {hora}"),
                                     UsedSeats = ""
                                 };
                                 newShows.Add(show);
-                                date2 = date2.AddDays(1);
+                                fecha = fecha.AddDays(1);
                             }
                         }
                     }
@@ -157,8 +165,8 @@ namespace TaquillaITH.Controllers
                 else
                     return BadRequest("Error al mostrar las promociones.");
                 #endregion
-
-                var JsonReturn = Movies.Select(x=> new 
+                
+                var JsonReturn = newMovies.Select(x => new 
                 {
                     pelicula = x.Name,
                     horarios = x?.Schedule?.Replace(" ", string.Empty).Split(',').ToList() ?? new List<string> { "12:00" },
@@ -168,11 +176,13 @@ namespace TaquillaITH.Controllers
                     genero = x.Genre,
                     precioBoletos = new
                     {
-                        boletoNormal = Promotions[0].Price,
-                        boleto3D = Promotions[1].Price,
-                        boletoVIP = Promotions[2].Price
+                        boletoNormal = 50 - 50 * Promotions[0].Percentaje/100, 
+                        boleto3D = 60 - 60 * Promotions[1].Percentaje/100,
+                        boletoVIP = 70 - 70 * Promotions[0].Percentaje/100
                     },
-                    photoUrl = x.PhotoUrl
+                    photoUrl = x.PhotoUrl,
+                    fecha_inicio = x.Fecha_inicio,
+                    fecha_final = x.Fecha_final
                 });
 
                 return Ok(JsonReturn);
@@ -182,7 +192,6 @@ namespace TaquillaITH.Controllers
                 return BadRequest("Obtener el catálogo de asientos falló debido a: " + ex);
             }
         }
-
         #endregion
 
         #region HTTP Post

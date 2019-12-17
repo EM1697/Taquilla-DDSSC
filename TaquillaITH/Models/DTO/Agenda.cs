@@ -14,5 +14,7 @@ namespace TaquillaITH.Models.DTO
         public string Categoria { get; set; }
         public string Horarios { get; set; }
         public int Num_Sala { get; set; }
+        public DateTime Fecha_inicio { get; set; }
+        public DateTime Fecha_final { get; set; }
     }
 }

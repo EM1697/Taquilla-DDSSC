@@ -50,9 +50,9 @@ namespace TaquillaITH.Services
             }
         }
 
-        public List<Movie> GetMovies()
+        public List<Movie> GetMovies(DateTime fecha)
         {
-            return _db.Movies.Where(x => x.IsDeleted == false).ToList();
+            return _db.Movies.Where(x => x.IsDeleted == false && (x.Fecha_inicio.Date <= fecha.Date && x.Fecha_final.Date >= fecha.Date)).ToList();
         }
 
         public Show GetShow(int idSala, DateTime Horario)
@@ -184,7 +184,6 @@ namespace TaquillaITH.Services
                     _db.Movies.AddRange(finalList);
                     await _db.SaveChangesAsync();
                     return true;
-
                 }
             }
             catch (System.Exception ex)

@@ -14,5 +14,7 @@ namespace TaquillaITH.Models
         public int Num_Sala { get; set; }
         public string Synopsis { get; set; }
         public string PhotoUrl { get; set; }
+        public DateTime Fecha_inicio { get; set; }
+        public DateTime Fecha_final { get; set; }
     }
 }
