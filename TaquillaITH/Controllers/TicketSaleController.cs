@@ -33,12 +33,9 @@ namespace TaquillaITH.Controllers
             return View(Movies);
         }
 
-        public IActionResult Step2(EverythingViewModel model)
+        public IActionResult FromStep1To2(EverythingViewModel model)
         {
-            if (model == null)
-                return NotFound();
-
-            return View(model);
+            return Ok();
         }
         #endregion
     }
