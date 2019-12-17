@@ -33,6 +33,12 @@ namespace TaquillaITH.Controllers
             return View(Movies);
         }
 
+        public IActionResult _Step3()
+        {
+            return View();
+        }
+
+
         public IActionResult FromStep1To2(EverythingViewModel model)
         {
             return Ok();

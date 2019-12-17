@@ -137,7 +137,7 @@ namespace TaquillaITH.Controllers
                 #endregion
 
                 #region Promociones
-                //Llamado api de Promociones - Julio
+                //Llamado api de Promociones - Julio Fuentes
                 var promoRequest = new RestRequest("http://cinefinanzas.gear.host/api/Finance/Promotions")
                 {
                     Method = Method.GET,
@@ -183,6 +183,35 @@ namespace TaquillaITH.Controllers
             }
         }
 
+        [HttpGet("GetMembership")]
+        public async Task<IActionResult> GetMembership(string id)
+        {
+            //Membresia - Carlos Salido
+            var membershipRequest = new RestRequest("https://membresiascomplejo.azurewebsites.net/api/membresias/solicitardatos")
+            {
+                Method = Method.GET,
+                RequestFormat = DataFormat.Json
+            };
+            membershipRequest.AddQueryParameter("id", id);
+            var membershipResponse = await _client.ExecuteGetTaskAsync(membershipRequest);
+            var model = JsonConvert.DeserializeObject<Membresia>(membershipResponse.Content);
+
+            if (membershipResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var membership = new Membresia
+                {
+                    statusCode = model.statusCode,
+                    id_Membresia = model.id_Membresia,
+                    nombre = model.nombre,
+                    password = model.password,
+                    porcentaje = model.porcentaje,
+                    puntos = model.puntos
+                };
+                return Ok(membership);
+            }
+        return BadRequest("Error al cargar la membresia");
+        }
+
         #endregion
 
         #region HTTP Post
@@ -221,6 +250,55 @@ namespace TaquillaITH.Controllers
             catch (Exception ex)
             {
                 return BadRequest("No se puedieron guardar los asientos debido a " + ex);
+            }
+        }
+
+        [HttpPost("PostMembershipPoints")]
+        public async Task<IActionResult> PostMembershipPoints(Membresia membresia)
+        {
+            try
+            {
+                //Generar Puntos
+                var pointsRequest = new RestRequest("https://membresiascomplejo.azurewebsites.net/api/membresias/GenerarPuntos")
+                {
+                    Method = Method.POST,
+                    RequestFormat = DataFormat.Json
+                };
+
+                var pointsModel = new
+                {
+                    Id_Membresia = Convert.ToInt32(membresia.id_Membresia),
+                    Id_Punto_Venta = 1,
+                    Puntos_Generados = membresia.puntos
+                };
+
+                pointsRequest.AddJsonBody(pointsModel);
+                var pointsResponse = await _client.ExecutePostTaskAsync(pointsRequest);
+
+                if (pointsResponse.StatusCode != System.Net.HttpStatusCode.OK)
+                    return BadRequest("Ocurrio un error al momento de generar los puntos");
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("No se pudo guardar la venta debido a " + ex);
+            }
+        }
+
+        [HttpPost("SavePurchase")]
+        public async Task<IActionResult> SavePurchase(Sale sale)
+        {
+            try
+            {
+                var model = await _apiServices.SavePurchase(sale);
+                if (!model)
+                    return BadRequest("Hubo un error al momento de guardar la venta, por favor inténtelo después");
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Hubo un error al momento de guardar la venta, por favor intentelo despues" + ex.Message);
             }
         }
 
@@ -273,9 +351,9 @@ namespace TaquillaITH.Controllers
                 {
                     tarjeta_origen = "5050543614668653",
                     tarjeta_destino = "5050464168614617",
-	                cvv = "078",
-	                fecha_vencimiento = "12/21",
-	                monto = venta.Total
+                    cvv = "078",
+                    fecha_vencimiento = "12/21",
+                    monto = venta.Total
                 };
 
                 bankRequest.AddJsonBody(bankModel);
@@ -299,23 +377,6 @@ namespace TaquillaITH.Controllers
             catch (Exception ex)
             {
                 return BadRequest("No se pudo guardar la venta debido a " + ex);
-            }
-        }
-
-        [HttpPost("SavePurchase")]
-        public async Task<IActionResult> SavePurchase(Sale sale)
-        {
-            try
-            {
-                var model = await _apiServices.SavePurchase(sale);
-                if (!model)
-                    return BadRequest("Hubo un error al momento de guardar la venta, por favor inténtelo después");
-
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("Hubo un error al momento de guardar la venta, por favor intentelo despues" + ex.Message);
             }
         }
 
