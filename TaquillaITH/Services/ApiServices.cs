@@ -113,10 +113,12 @@ namespace TaquillaITH.Services
                                 Cash = p.Cash,
                                 CreditCard = p.CreditCard,
                                 RewardPoints = p.RewardPoints,
-                                TotalAmount = p.Cash + p.CreditCard + p.TotalAmount,
+                                TotalAmount = p.Cash + p.CreditCard,
                                 Name = m.Name,
                                 Schedule = m.Schedule,
-                                RunningTime = m.RunningTime.ToString()
+                                RunningTime = m.RunningTime.ToString(),
+                                time = s.Time,
+                                saleId = s.Id
                             }).ToList();
 
                 return data;
