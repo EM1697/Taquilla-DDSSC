@@ -20,7 +20,7 @@ namespace TaquillaITH.Controllers
         public ApiServices _sc;
         public RestClient _client;
         private readonly ApplicationDbContext _db;
-        public TicketSaleController(ILogger<HomeController> logger, ApiServices apiServices, ApplicationDbContext db)
+        public TicketSaleController(ApiServices apiServices, ApplicationDbContext db)
         {
             _sc = apiServices;
             _db = db;
@@ -32,12 +32,6 @@ namespace TaquillaITH.Controllers
             var Movies = _sc.GetMovies().ToList();
             return View(Movies);
         }
-
-        public IActionResult _Step3()
-        {
-            return View();
-        }
-
 
         public IActionResult FromStep1To2(EverythingViewModel model)
         {
