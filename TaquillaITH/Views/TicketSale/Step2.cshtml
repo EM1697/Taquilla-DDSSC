@@ -1,0 +1,87 @@
+﻿@model List<TaquillaITH.Models.Movie>
+@using TaquillaITH.ViewModels;
+@{
+    ViewData["Title"] = "Venta de boletos";
+    var date = DateTime.Now;
+    //var shows = (List<ShowTimesViewModel>)ViewBag["Shows"];
+}
+
+<div class="text-center container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4">Catálogo de Películas</h1>
+        </div>
+    </div>
+    <div class="row mt-2 justify-content-md-center">
+        <div class="col-6">
+            <p>Al dia de:</p>
+        </div>
+    </div>
+        <div class="row mt-2 justify-content-md-center">
+        <div class="col-6">
+            <input id="datePicker" type="date" class="form-control" placeholder="Fecha" aria-label="Fecha" aria-describedby="addon-wrapping">  
+        </div>
+    </div>
+    <div class="row">
+        <hr/>
+        @if (Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-5 mt-2 mb-2 ml-2 mr-2" style="border: solid black 2px;">
+                    <h1> @item.Name </h1>
+                    <img src="@item.PhotoUrl" width="350" height="600"/>
+                    <br/>
+                    @foreach (var schedule in item?.Schedule?.Replace(" ", string.Empty).Split(',').ToList())
+                    {
+                        <button type="button" value="@schedule" class="btn btn-primary mt-2 ml-2" onclick="ToggleSelect(@item.Id)"
+                                data-toggle="button" aria-pressed="false" autocomplete="off" id="MovieId-@item.Id">
+                          @schedule
+                        </button>
+                    }
+                    <br />
+                    <div id="@item.Id" class="mt-2 SelectTicket" style="display:none;">
+                        <select>
+                            <option selected disabled>Seleccione un tipo de boleto</option>
+                            <option value="boletoNormal"> Boleto Normal</option>
+                            <option value="boleto3D"> Boleto 3D</option>
+                            <option value="boletoVIP"> Boleto VIP</option>
+                        </select>
+
+                        <div class="form-group">
+                            <label class="control-label">Cantidad</label>
+                            <input class="form-control" type="number" max="10" min="1" />
+                        </div>
+
+                        <button class="btn btn-outline-success" id="btnSelectButton"> Seleccionar función</button>
+                    </div>
+                </div>
+                <hr/>
+            }
+        }
+    </div>
+</div>
+
+<script>
+    function ToggleSelect(id)
+    {
+        $('#' + id).toggle();
+        $( "#MovieId-"+id).click(function() {
+          alert( "Handler for .click() called." );
+        });
+    }
+    
+    $(document).ready(function () {
+        var date = new Date();
+        var day = date.getDate();
+        var month = date.getMonth() + 1;
+        var year = date.getFullYear();
+        if (month < 10) month = "0" + month;
+        if (day < 10) day = "0" + day;
+
+        var today = year + "-" + month + "-" + day;
+
+        $('#datePicker').val(today);
+    });
+
+</script>
