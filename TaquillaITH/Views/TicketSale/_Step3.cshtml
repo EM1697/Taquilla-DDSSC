@@ -1,0 +1,58 @@
+﻿<div class="card col-6 align-items-center">
+  <div class="card-body col-12">
+    <div id="membership">
+        <blockquote class="blockquote mb-0 align-items-center">
+            <p>Ingrese su número de membresía</p>
+            <input type="text" class="form-control col-12 col-xl-12" id="membershipNumber" placeholder="Ej. 3">
+            <button class="col-6 col-xl-6 btn btn-light mt-2 align-self-end" onclick="member();">Continuar</button>
+        </blockquote>
+      </div>
+    <div id="points" style="display:none;">
+        <blockquote class="blockquote mb-0 align-items-center">
+            <p><b>Cuenta: </b><span id="membershipId"></span></p>
+            <p><b>Hola </b><span id="membershipOwner"></span>!</p>
+            <p>Tiene a su disponibilidad: <b><span id="membershipPoints"></span></b> puntos.</p>
+            <p>Ingrese la cantidad de puntos que desea utilizar:</p>
+            <input type="text" class="form-control col-12 col-xl-12" id="membershipNumber" placeholder="Ej. 10">
+            <button class="col-6 col-xl-6 btn btn-light mt-2 align-self-end">Confirmar</button>
+            <footer class="blockquote-footer">Se generarán puntos partir del <cite><span id="membershipPercent"></span>%</cite> de la venta.</footer>
+        </blockquote>
+      </div>
+  </div>
+</div>
+
+<script>
+    function member() {
+        
+        var id = $("#membershipNumber").val();
+        $.ajax({
+        url: "/api/Booth/GetMembership",
+        type: 'GET',
+        data: {'id':id},
+            success: function (data) {
+                $("#membership").hide();
+                $("#points").show();
+                $("#membershipId").text(data.id_Membresia);
+                $("#membershipOwner").text(data.nombre);
+                $("#membershipPoints").text(data.puntos);
+                $("#membershipPercent").text(data.porcentaje);
+                console.log("Success");
+            }
+        });
+    }
+
+    function points() {
+        var id = $("#membershipId").text();
+        var idPuntoVenta = 1;
+        var puntosGenerados = parseInt($("#membershipPoints").text())* venta;
+        $.ajax({
+        url: "/api/Booth/PostMembershipPoints",
+        type: 'POST',
+        data: {'id':id},
+            success: function (data) {
+                $("#points").hide();
+                console.log("Success");
+            }
+        });
+    }
+</script>
