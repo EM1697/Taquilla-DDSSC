@@ -28,7 +28,7 @@ namespace TaquillaITH.Controllers
             _client = new RestClient();
         }
 
-        public IActionResult Step1(EverythingViewModel model, string date)
+        public IActionResult Step1(string date)
         {
             try
             {
@@ -44,19 +44,17 @@ namespace TaquillaITH.Controllers
                 var Movies = _sc.GetMovies(FinalDate).ToList();
 
                 if (Movies.Any())
+                {
+                    ViewData["CurrentDate"] = FinalDate;
                     return View(Movies);
-                else
-                    return NotFound("No se encontraron funciones en esta fecha.");
+                }
+
+                return NotFound("No se encontraron funciones en esta fecha.");
             }
             catch (Exception ex)
             {
                 return NotFound("No se encontraron funciones en esta fecha.");
             }
-        }
-
-        public IActionResult FromStep1To2(EverythingViewModel model)
-        {
-            return Ok();
         }
         #endregion
     }
