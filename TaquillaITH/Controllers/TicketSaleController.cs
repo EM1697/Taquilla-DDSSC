@@ -29,7 +29,7 @@ namespace TaquillaITH.Controllers
             _client = new RestClient();
         }
 
-        public async IActionResult Step1(string date)
+        public async Task<IActionResult> Step1(string date)
         {
             try
             {
