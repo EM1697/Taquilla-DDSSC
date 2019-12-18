@@ -40,9 +40,10 @@ namespace TaquillaITH.Controllers
                     FinalDate = Convert.ToDateTime(date);
                 }
                 else
-                    FinalDate = DateTime.Now;
+                    FinalDate = DateTime.Now.Date;
 
-                var req = new RestRequest("http://taquilla2.gear.host/api/booth/GetShowTimes")
+                var req = new RestRequest("http://taquilla2.gear.host/api/booth/GetShowTimes?fecha22=" + date)
+                //var req = new RestRequest("http://taquilla2.gear.host/api/booth/GetShowTimes")
                 {
                     Method = Method.GET,
                     RequestFormat = DataFormat.Json

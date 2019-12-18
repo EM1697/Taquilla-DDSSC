@@ -323,6 +323,30 @@ namespace TaquillaITH.Services
             }
         }
 
+        [HttpPost("Payment")]
+        public async Task<bool> Payment(Payment pago)
+        {
+            try
+            {
+                var pagueme = new Payment
+                {
+                    CreationDate = DateTime.Now,
+                    LastUpdate = DateTime.Now,
+                    Cash = pago.Cash,
+                    CreditCard = pago.CreditCard,
+                    RewardPoints = pago.RewardPoints
+                };
+
+                _db.Payments.Add(pagueme);
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         #endregion
     }
 }

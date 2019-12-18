@@ -3,8 +3,9 @@
     <div id="membership">
         <blockquote class="blockquote mb-0 align-items-center">
             <p>Ingrese su número de membresía</p>
-            <input type="text" class="form-control col-12 col-xl-12" id="membershipNumber" placeholder="Ej. 3">
+            <input onblur="textInput(this)" type="number" class="form-control col-12 col-xl-12" id="membershipNumber" min="0" placeholder="Ej. 3">
             <button class="col-6 col-xl-6 btn btn-light mt-2 align-self-end" onclick="member();">Continuar</button>
+            <button class="col-6 col-xl-6 btn btn-light mt-2 align-self-end" id="skipMembership">Saltar</button>
         </blockquote>
       </div>
     <div id="points" style="display:none;">
@@ -13,7 +14,7 @@
             <p><b>Hola </b><span id="membershipOwner"></span>!</p>
             <p>Tiene a su disponibilidad: <b><span id="membershipPoints"></span></b> puntos.</p>
             <p>Ingrese la cantidad de puntos que desea utilizar:</p>
-            <input type="text" class="form-control col-12 col-xl-12" id="membershipNumber" placeholder="Ej. 10">
+            <input onblur="textInput(this)" type="number" class="form-control col-12 col-xl-12" id="requiredPoints" min="0" max="puntosDisponibles" placeholder="Ej. 10">
             <button class="col-6 col-xl-6 btn btn-light mt-2 align-self-end" id="To4rthStep">Confirmar</button>
             <footer class="blockquote-footer">Se generarán puntos partir del <cite><span id="membershipPercent"></span>%</cite> de la venta.</footer>
         </blockquote>

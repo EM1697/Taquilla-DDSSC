@@ -41,6 +41,7 @@
                                     data-toggle="button" aria-pressed="false" autocomplete="off" id="MovieId-@item.duracion">
                                 @schedule
                             </button>
+
                         }
                         <br />
                         <div id="@item.duracion" class="mt-2 SelectTicket" style="display:none;">
@@ -57,9 +58,16 @@
                             </div>
 
                             <label>Sala: @item.sala</label>
+                            <input id="sala-@item.duracion" value="@item.sala" style="display:none;"/>
                             <br />
                             <label>Duración: @item.duracion</label>
+                            <input id="duracion-@item.duracion" value="@item.duracion" style="display:none;"/>
                             <br />
+                            <label>Genero: @item.genero</label>
+                            <input id="genero-@item.duracion" value="@item.genero" style="display:none;"/>
+                            <br />
+                            <input id="schedule-@item.duracion" value="@item.horarios" style="display:none;"/>
+                            <input id="movie-@item.duracion" value="@item.pelicula" style="display:none;"/>
 
                             <button class="btn btn-outline-success" id="btnSelectButton" onclick="SelectShowTime(@item.duracion,@item.sala)"> Seleccionar función</button>
                         </div>
@@ -83,6 +91,10 @@
     <partial name="_Step4">
 </div>
 
+<div id="Step5" style="display:none;">
+    <partial name="_Step5">
+</div>
+
 <script>
     var alaea = new Date(Date.parse('@CurrentDate'));
     var selectedTicketType = "";
@@ -90,7 +102,7 @@
     var TheatreRoom =  0;
     var ticketAmount = 0;
     var Judir = "";
-
+    var puntosDisponibles = 0;
     var showDate = "";
     var selectedSchedule = "";
 
@@ -100,6 +112,14 @@
     var selectedMovie = "";
 
     var products = [];
+
+    var time = "";
+    var movieName = "";
+    var genre = "";
+    var movie = "";
+    var payment = 0;
+    var pointFlag = false;
+    var pointsUsed;
 
     function ToggleSelect(id, schedule, pelicula)
     {
@@ -159,17 +179,19 @@
     });
 
     var seatsList = [];
-     function SelectShowTime(id, Num_sala)
-        {
-        debugger;
+
+    function SelectShowTime(id, Num_sala)
+    {
+        movie = $("#movie-"+id).val();
+        genre = $("#genero-"+id).val();
         TheatreRoom = Num_sala;
         ticketAmount = $("#ticketAmount-"+id).val();
         selectedTicket = $("#mySelect-" + id + " :selected").val();
 
-        if ($("#mySelect-138").val()) {
-            if ($("#mySelect-138").val().length > 0 && $("#ticketAmount").val() != ""){
+        if ($("#mySelect-" + id + " :selected").val() != "Seleccione un tipo de boleto") {
+            if ($("#mySelect-" + id + " :selected").val().length > 0 && $("#ticketAmount-"+id).val() != ""){
                 TheatreRoom = Num_sala;
-                ticketAmount = $("#ticketAmount").val();
+                ticketAmount = $("#ticketAmount-"+id).val();
                 selectedTicket = $("#mySelect-" + id + " :selected").val();
 
                 var date = $("#datePicker").val() + " " + selectedSchedule;
@@ -250,14 +272,13 @@
     }
 
     $("#To3rdStep").click(function () {
-        if (ticketAmount == seatsList.length) {
-            $("#Step2").toggle();
-            $("#Step3").toggle();
-        }
-        else {
-            alert("Favor de seleccionar los asientos restantes");
-        }
+        $("#Step2").toggle();
+        $("#Step3").toggle();
+    });
 
+    $("#skipMembership").click(function () {
+        $("#Step2").toggle();
+        $("#Step3").toggle();
     });
 
     $("#To4rthStep").click(function () {
@@ -269,7 +290,7 @@
     });
 
     function member() {
-        
+        textInput($("#membershipNumber"));
         var id = $("#membershipNumber").val();
         $.ajax({
         url: "/api/Booth/GetMembership",
@@ -282,18 +303,21 @@
                 $("#membershipOwner").text(data.nombre);
                 $("#membershipPoints").text(data.puntos);
                 $("#membershipPercent").text(data.porcentaje);
+                puntosDisponibles = data.puntos;
                 console.log("Success");
             }
         });
     }
 
     function points() {
+        textInput($("#requiredPoints"));
         var id = $("#membershipId").text();
         var puntosGenerados = (parseInt($("#membershipPercent").text()) / 100) * TotalAmount;
         $.ajax({
             url: "/api/Booth/PostMembershipPoints?id_Membresia=" + id + "&puntos="+ puntosGenerados,
             type: 'POST',
             success: function (data) {
+                points = $("#requiredPoints");
                 $("#points").hide();
                 $("#Step3").toggle();
                 $("#Step4").toggle();
@@ -304,6 +328,7 @@
     }
 
     function ItsOver() {
+        debugger;
         var cardNumber = $("#cardNumber").val();
         var mes = $("#mes").val();
         var ano = $("#ano").val();
@@ -334,20 +359,61 @@
             "tarjeta_origen": cardNumber,
             "total": TotalAmount,
             "productos": products
-            
         };
 
         $.ajax({
             url: "/api/Booth/PostTicketSale",
             type: 'POST',
-            contentType: "application/json",
+            contentType: application/json,
             data: JSON.stringify(venta),
             success: function (data) {
-                alert("En Hora buena, has concluido desarrollo de sistemas complejos de software!");
+                alert("Compra realizada con exito");
+                $("_step4").hide();
+                $("_step5").show();
+
+                $("#movie").text(movie);
+                $("#runningTime").text(selectedSchedule);
+                //$("#cash").text(TotalAmount - pointsUsed);
+                //$("#credit").text("0");
+                //$("#points").text(pointsUsed);
+                $("#cash").text("0");
+                $("#credit").text(TotalAmount - pointsUsed);
+                $("#points").text(pointsUsed);
+                
+                $("#total").text(TotalAmount);
+
+                var pago =
+                {
+                    Cash : 0,
+                    CreditCard : TotalAmount - pointsUsed,
+                    RewardPoints : pointsUsed
+                }
+
+                $.ajax({
+                    url: "/api/Payment",
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: {'pago':pago},
+                    success: function (data) {
+                        alert("Pago exitoso");
+                    }, error: function (data) {
+                        console.log(data);
+                    }
+                });
             }, error: function (data) {
                 console.log(data);
             }
+
         });
     }
+
+    function textInput(field) {
+    //var regExpr =  /^\d+$/;
+    //if (!regExpr.test(field.value)) {
+    //  //Case of error
+    //    field.value = "";
+    //    alert("Favor de llenar los datos");
+    //}
+}
 
 </script>

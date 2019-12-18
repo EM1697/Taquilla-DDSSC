@@ -340,8 +340,10 @@ namespace TaquillaITH.Controllers
                         venta.fecha_vencimiento,
                         monto = venta.Total
                     };
+                    Sale sale = new Sale();
 
-                    bankRequest.AddJsonBody(bankModel);
+
+                                                                 bankRequest.AddJsonBody(bankModel);
                     var bankResponse = await _client.ExecutePostTaskAsync(bankRequest);
 
                     if (bankResponse.StatusCode != System.Net.HttpStatusCode.OK)
