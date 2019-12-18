@@ -371,35 +371,35 @@
                 $("#Step4").hide();
                 $("#Step5").show();
 
-                $("#movie").text(movie);
-                $("#runningTime").text(selectedSchedule);
-                //$("#cash").text(TotalAmount - pointsUsed);
-                //$("#credit").text("0");
+                //$("#movie").text(movie);
+                //$("#runningTime").text(selectedSchedule);
+                ////$("#cash").text(TotalAmount - pointsUsed);
+                ////$("#credit").text("0");
+                ////$("#points").text(pointsUsed);
+                //$("#cash").text("0");
+                //$("#credit").text(TotalAmount - pointsUsed);
                 //$("#points").text(pointsUsed);
-                $("#cash").text("0");
-                $("#credit").text(TotalAmount - pointsUsed);
-                $("#points").text(pointsUsed);
                 
-                $("#total").text(TotalAmount);
+                //$("#total").text(TotalAmount);
 
-                var pago =
-                {
-                    Cash : 0,
-                    CreditCard : TotalAmount - pointsUsed,
-                    RewardPoints : pointsUsed
-                }
+                //var pago =
+                //{
+                //    Cash : 0,
+                //    CreditCard : TotalAmount - pointsUsed,
+                //    RewardPoints : pointsUsed
+                //}
 
-                $.ajax({
-                    url: "/api/Payment",
-                    type: 'POST',
-                    contentType: "application/json",
-                    data: {'pago':pago},
-                    success: function (data) {
-                        alert("Pago exitoso");
-                    }, error: function (data) {
-                        console.log(data);
-                    }
-                });
+                //$.ajax({
+                //    url: "/api/Payment",
+                //    type: 'POST',
+                //    contentType: "application/json",
+                //    data: {'pago':pago},
+                //    success: function (data) {
+                //        alert("Pago exitoso");
+                //    }, error: function (data) {
+                //        console.log(data);
+                //    }
+                //});
             }, error: function (data) {
                 console.log(data);
             }
@@ -417,3 +417,4 @@
 }
 
 </script>
+*@
