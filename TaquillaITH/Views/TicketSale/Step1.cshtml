@@ -364,12 +364,12 @@
         $.ajax({
             url: "/api/Booth/PostTicketSale",
             type: 'POST',
-            contentType: application/json,
+            contentType: "application/json",
             data: JSON.stringify(venta),
             success: function (data) {
                 alert("Compra realizada con exito");
-                $("_step4").hide();
-                $("_step5").show();
+                $("#Step4").hide();
+                $("#Step5").show();
 
                 $("#movie").text(movie);
                 $("#runningTime").text(selectedSchedule);
