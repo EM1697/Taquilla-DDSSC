@@ -242,10 +242,6 @@ namespace TaquillaITH.Controllers
                 var Schedule = Convert.ToDateTime(seats.Horario);
                 var Show = _apiServices.GetShow(seats.IdSala, Schedule);
                 
-                //if (string.IsNullOrEmpty(Show.UsedSeats))
-                //{
-                //    Show.UsedSeats = "";
-                //}
 
                 if (seats.AsientosUsados != null && seats.AsientosUsados.Any())
                 {
@@ -352,6 +348,26 @@ namespace TaquillaITH.Controllers
                         return BadRequest("Ocurrio un error al momento de la transaccion");
 
                     //Banquito
+
+                    var seatsRequest = new RestRequest("https://taquilla2.gear.host/api/booth/SelectShowSeats/")
+                    {
+                        Method = Method.POST,
+                        RequestFormat = DataFormat.Json,
+                    };
+
+                    var seatsModel = new
+                    {
+                        IdSala = venta.sala,
+                        Horario = venta.schedule,
+                        AsientosUsados = venta.UsedSeats
+                    };
+
+                    seatsRequest.AddJsonBody(seatsModel);
+                    var seatsResponse = await _client.ExecutePostTaskAsync(seatsRequest);
+
+                    if (seatsResponse.StatusCode != System.Net.HttpStatusCode.OK)
+                        return BadRequest("Ocurrio un error al momento reservar los asientos");
+
                 }
 
                 bool Registred = await _apiServices.RegisterSale(venta);

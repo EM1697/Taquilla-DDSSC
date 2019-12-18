@@ -53,7 +53,7 @@
 
                             <div class="form-group">
                                 <label class="control-label">Cantidad</label>
-                                <input class="form-control" type="number" max="10" min="1" id="ticketAmount" />
+                                <input class="form-control" type="number" max="10" min="1" id="ticketAmount-@item.duracion" />
                             </div>
 
                             <label>Sala: @item.sala</label>
@@ -89,6 +89,7 @@
     var selectedMovieId =  0;
     var TheatreRoom =  0;
     var ticketAmount = 0;
+    var Judir = "";
 
     var showDate = "";
     var selectedSchedule = "";
@@ -109,13 +110,13 @@
     }
 
     $(document).ready(function () {
-        var date = new Date();
         var day = alaea.getDate();
         var month = alaea.getMonth() + 1;
         var year = alaea.getFullYear();
         if (month < 10) month = "0" + month;
         if (day < 10) day = "0" + day;
         var today = year + "-" + month + "-" + day;
+        Judir = today;
 
         if (!alaea)
         {
@@ -158,8 +159,12 @@
     });
 
     var seatsList = [];
-    function SelectShowTime(id, Num_sala)
-    {
+     function SelectShowTime(id, Num_sala)
+        {
+        debugger;
+        TheatreRoom = Num_sala;
+        ticketAmount = $("#ticketAmount-"+id).val();
+        selectedTicket = $("#mySelect-" + id + " :selected").val();
 
         if ($("#mySelect-138").val()) {
             if ($("#mySelect-138").val().length > 0 && $("#ticketAmount").val() != ""){
@@ -299,14 +304,12 @@
     }
 
     function ItsOver() {
-        debugger;
         var cardNumber = $("#cardNumber").val();
         var mes = $("#mes").val();
         var ano = $("#ano").val();
         var cvv = $("#cvv").val();
 
         for (var item in seatsList) {
-            debugger;
             var wea = {
                 "idBoleto": 107,
                 "sala": TheatreRoom,
@@ -322,6 +325,9 @@
 
         var venta = {
             "helper": true,
+            "sala": TheatreRoom,
+            "schedule": Judir + " " + selectedSchedule,
+            "UsedSeats": seatsList,
             "mes": mes,
             "ano": ano,
             "cvv": cvv,
