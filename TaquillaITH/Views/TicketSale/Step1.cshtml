@@ -53,7 +53,7 @@
 
                             <div class="form-group">
                                 <label class="control-label">Cantidad</label>
-                                <input class="form-control" type="number" max="10" min="1" id="ticketAmount" />
+                                <input class="form-control" type="number" max="10" min="1" id="ticketAmount-@item.duracion" />
                             </div>
 
                             <label>Sala: @item.sala</label>
@@ -161,8 +161,9 @@
     var seatsList = [];
      function SelectShowTime(id, Num_sala)
         {
+        debugger;
         TheatreRoom = Num_sala;
-        ticketAmount = $("#ticketAmount").val();
+        ticketAmount = $("#ticketAmount-"+id).val();
         selectedTicket = $("#mySelect-" + id + " :selected").val();
 
         var date = $("#datePicker").val() + " " + selectedSchedule;
@@ -282,7 +283,6 @@
     }
 
     function ItsOver() {
-        debugger;
         var cardNumber = $("#cardNumber").val();
         var mes = $("#mes").val();
         var ano = $("#ano").val();
@@ -316,7 +316,6 @@
             
         };
 
-        debugger;
         $.ajax({
             url: "/api/Booth/PostTicketSale",
             type: 'POST',
