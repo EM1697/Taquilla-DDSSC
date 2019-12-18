@@ -158,83 +158,101 @@
     });
 
     var seatsList = [];
-     function SelectShowTime(id, Num_sala)
-        {
-        TheatreRoom = Num_sala;
-        ticketAmount = $("#ticketAmount").val();
-        selectedTicket = $("#mySelect-" + id + " :selected").val();
+    function SelectShowTime(id, Num_sala)
+    {
 
-        var date = $("#datePicker").val() + " " + selectedSchedule;
-        $.ajax({
-            type: "GET",
-            url: "/api/Booth/GetShowSeats",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            data:
-            {
-                "idSala": TheatreRoom,
-                "Horario": date
-            },
-            success: function (data) {
-                console.log(data);
+        if ($("#mySelect-138").val()) {
+            if ($("#mySelect-138").val().length > 0 && $("#ticketAmount").val() != ""){
+                TheatreRoom = Num_sala;
+                ticketAmount = $("#ticketAmount").val();
+                selectedTicket = $("#mySelect-" + id + " :selected").val();
 
-                data.forEach(function (element) {
-                    var tr = document.createElement("div");
-
-                    element.forEach(function (dato)
+                var date = $("#datePicker").val() + " " + selectedSchedule;
+                $.ajax({
+                    type: "GET",
+                    url: "/api/Booth/GetShowSeats",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data:
                     {
-                        var btn = document.createElement("button");
-                        btn.className = "btn btn-outline-dark m-2";
-                        btn.onclick = (function ()
-                        {
-                            if (!seatsList.includes(this.innerHTML) && seatsList.length < ticketAmount)
+                        "idSala": TheatreRoom,
+                        "Horario": date
+                    },
+                    success: function (data) {
+                        console.log(data);
+
+                        data.forEach(function (element) {
+                            var tr = document.createElement("div");
+
+                            element.forEach(function (dato)
                             {
-                                seatsList.push(dato.name);
-                                    $(this).css("background", "pink");
-                                console.log(seatsList);
+                                var btn = document.createElement("button");
+                                btn.className = "btn btn-outline-dark m-2";
+                                btn.onclick = (function ()
+                                {
+                                    if (!seatsList.includes(this.innerHTML) && seatsList.length < ticketAmount)
+                                    {
+                                        seatsList.push(dato.name);
+                                            $(this).css("background", "pink");
+                                        console.log(seatsList);
 
                                 
-                            }
-                            else if (seatsList.includes(this.innerHTML)) {
-                                seatsList.splice(seatsList.indexOf(dato.name), 1);
-                                $(this).css("background", "white");
-                                console.log(seatsList);
-                            }
+                                    }
+                                    else if (seatsList.includes(this.innerHTML)) {
+                                        seatsList.splice(seatsList.indexOf(dato.name), 1);
+                                        $(this).css("background", "white");
+                                        console.log(seatsList);
+                                    }
 
-                            if (seatsList.length == ticketAmount) {
-                                $("#To3rdStep").show();
-                            } else {
-                                $("#To3rdStep").hide();
-                            }
-                        });
+                                    if (seatsList.length == ticketAmount) {
+                                        $("#To3rdStep").show();
+                                    } else {
+                                        $("#To3rdStep").hide();
+                                    }
+                                });
 
-                        if (dato.occupied)
-                        {
-                            btn.innerHTML = "X"
-                            btn.setAttribute("disabled", "true");
-                        }
-                        else
-                            btn.innerHTML = dato.name
+                                if (dato.occupied)
+                                {
+                                    btn.innerHTML = "X"
+                                    btn.setAttribute("disabled", "true");
+                                }
+                                else
+                                    btn.innerHTML = dato.name
 
-                        tr.append(btn);
-                    })
+                                tr.append(btn);
+                            })
 
-                    $("#ShowSeats").append(tr);
-                })
+                            $("#ShowSeats").append(tr);
+                        })
 
-                $("#Step1").toggle();
-                $("#Step2").toggle();
-                TotalAmount = ticketAmount * parseInt(selectedTicket);
-            },
-            error: function (data) {
-                alert(data.responseText);
+                        $("#Step1").toggle();
+                        $("#Step2").toggle();
+                        TotalAmount = ticketAmount * parseInt(selectedTicket);
+                    },
+                    error: function (data) {
+                        alert(data.responseText);
+                    }
+                }); 
             }
-        });
+            else{
+                alert("Favor de seleccionar asientos");
+            }
+        }
+        else {
+            alert("Favor de seleccionar un tipo de boleto")
+        }
+
     }
 
     $("#To3rdStep").click(function () {
-         $("#Step2").toggle();
-         $("#Step3").toggle();
+        if (ticketAmount == seatsList.length) {
+            $("#Step2").toggle();
+            $("#Step3").toggle();
+        }
+        else {
+            alert("Favor de seleccionar los asientos restantes");
+        }
+
     });
 
     $("#To4rthStep").click(function () {
