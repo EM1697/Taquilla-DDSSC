@@ -52,12 +52,12 @@
                                 <input class="form-control" type="number" max="10" min="1" id="ticketAmount" />
                             </div>
 
-                            <label>Sala: @item.Num_Sala</label>
+                            <label>Sala: @item.sala</label>
                             <br />
-                            <label>Duración: @item.RunningTime</label>
+                            <label>Duración: @item.duracion</label>
                             <br />
 
-                            <button class="btn btn-outline-success" id="btnSelectButton" onclick="SelectShowTime(@item.Id,@item.Num_Sala)"> Seleccionar función</button>
+                            <button class="btn btn-outline-success" id="btnSelectButton" onclick="SelectShowTime(@item.Id,@item.sala)"> Seleccionar función</button>
                         </div>
                     </div>
                     <hr />
