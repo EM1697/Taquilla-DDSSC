@@ -89,6 +89,7 @@
     var selectedMovieId =  0;
     var TheatreRoom =  0;
     var ticketAmount = 0;
+    var Judir = "";
 
     var showDate = "";
     var selectedSchedule = "";
@@ -109,13 +110,13 @@
     }
 
     $(document).ready(function () {
-        var date = new Date();
         var day = alaea.getDate();
         var month = alaea.getMonth() + 1;
         var year = alaea.getFullYear();
         if (month < 10) month = "0" + month;
         if (day < 10) day = "0" + day;
         var today = year + "-" + month + "-" + day;
+        Judir = today;
 
         if (!alaea)
         {
@@ -288,7 +289,6 @@
         var cvv = $("#cvv").val();
 
         for (var item in seatsList) {
-            debugger;
             var wea = {
                 "idBoleto": 107,
                 "sala": TheatreRoom,
@@ -304,6 +304,9 @@
 
         var venta = {
             "helper": true,
+            "sala": TheatreRoom,
+            "schedule": Judir + " " + selectedSchedule,
+            "UsedSeats": seatsList,
             "mes": mes,
             "ano": ano,
             "cvv": cvv,
@@ -313,6 +316,7 @@
             
         };
 
+        debugger;
         $.ajax({
             url: "/api/Booth/PostTicketSale",
             type: 'POST',

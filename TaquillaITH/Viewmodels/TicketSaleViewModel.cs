@@ -12,6 +12,10 @@ namespace TaquillaITH.ViewModels
     public class TicketSaleViewModel
     {
         public bool helper { get; set; }
+        public int sala { get; set; }
+        public string schedule { get; set; }
+        public List<string> UsedSeats { get; set; }
+
         public string cvv { get; set; }
         public string mes { get; set; }
         public string ano { get; set; }
