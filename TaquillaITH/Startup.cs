@@ -74,7 +74,7 @@ namespace TaquillaITH
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=TicketSale}/{action=Step1}/{id?}");
             });
 
             app.UseCors(options => options.AllowAnyOrigin());

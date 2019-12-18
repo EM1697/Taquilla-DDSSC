@@ -32,8 +32,8 @@ namespace TaquillaITH.Models
         public string sinopsis { get; set; }
         [NotMapped]
         public string genero { get; set; }
-        //[NotMapped]
-        //public List<Boleto> precioBoletos { get; set; }
+        [NotMapped]
+        public Dictionary<string, int> precioBoletos { get; set; }
         [NotMapped]
         public string photoUrl { get; set; }
         [NotMapped]

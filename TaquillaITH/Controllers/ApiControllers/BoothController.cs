@@ -109,7 +109,7 @@ namespace TaquillaITH.Controllers
                 DateTime date = DateTime.Now;
                 List<Show> newShows = new List<Show>();
                 List<Movie> newMovies = new List<Movie>();
-                if (date.DayOfWeek.ToString() == "Sunday" || date.DayOfWeek.ToString() == "Monday" || date.DayOfWeek.ToString() == "Tuesday")
+                if (date.DayOfWeek.ToString() == "Sunday" || date.DayOfWeek.ToString() == "Monday" || date.DayOfWeek.ToString() == "Tuesday" || date.DayOfWeek.ToString() == "Wednesday")
                 {
                     newMovies = _apiServices.GetMovies(pitote); //Lista de peliculas nuevas
                     foreach (Movie movie in newMovies) //Recorrer cada pelicula
@@ -118,17 +118,21 @@ namespace TaquillaITH.Controllers
                         foreach (var hora in newHorarios) //Cada horario por pelicula
                         {
                             DateTime fecha = movie.Fecha_inicio;
-                            for (int i = movie.Fecha_inicio.Day; i <= movie.Fecha_final.Day; i++)
+
+                            //for (var day = from.Date; day.Date <= thru.Date; day = day.AddDays(1))
+                            //    yield return day;
+
+                            foreach (DateTime day in EachDay(movie.Fecha_inicio, movie.Fecha_final))
                             {
                                 var show = new Show() //Crear nuevo show
                                 {
                                     MovieId = movie.Id,
                                     TheatreRoomId = movie.Num_Sala,
-                                    ShowTime = Convert.ToDateTime($"{fecha.Year}-{fecha.Month}-{fecha.Day} {hora}"),
+                                    ShowTime = Convert.ToDateTime($"{day.Year}-{day.Month}-{day.Day} {hora}"),
                                     UsedSeats = ""
                                 };
                                 newShows.Add(show);
-                                fecha = fecha.AddDays(1);
+                                //fecha = fecha.AddDays(1);
                             }
                         }
                     }
@@ -191,6 +195,11 @@ namespace TaquillaITH.Controllers
             {
                 return BadRequest("Obtener el catálogo de asientos falló debido a: " + ex);
             }
+        }
+        public IEnumerable<DateTime> EachDay(DateTime from, DateTime thru)
+        {
+            for (var day = from.Date; day.Date <= thru.Date; day = day.AddDays(1))
+                yield return day;
         }
 
         [HttpGet("GetMembership")]
@@ -264,7 +273,7 @@ namespace TaquillaITH.Controllers
         }
 
         [HttpPost("PostMembershipPoints")]
-        public async Task<IActionResult> PostMembershipPoints(Membresia membresia)
+        public async Task<IActionResult> PostMembershipPoints(string id_Membresia, string puntos)
         {
             try
             {
@@ -275,14 +284,15 @@ namespace TaquillaITH.Controllers
                     RequestFormat = DataFormat.Json
                 };
 
-                var pointsModel = new
-                {
-                    Id_Membresia = Convert.ToInt32(membresia.id_Membresia),
-                    Id_Punto_Venta = 1,
-                    Puntos_Generados = membresia.puntos
-                };
+                var Concha = Math.Truncate(Convert.ToDecimal(puntos));
+                var Panocha = Convert.ToInt32(id_Membresia);
 
-                pointsRequest.AddJsonBody(pointsModel);
+                pointsRequest.AddJsonBody(new 
+                {
+                    Id_Membresia = Panocha,
+                    Id_Punto_Venta = 1,
+                    Puntos_Generados = Concha
+                });
                 var pointsResponse = await _client.ExecutePostTaskAsync(pointsRequest);
 
                 if (pointsResponse.StatusCode != System.Net.HttpStatusCode.OK)
@@ -317,62 +327,32 @@ namespace TaquillaITH.Controllers
         {
             try
             {
-                ////Membresia
-                //var membershipRequest = new RestRequest("https://membresiascomplejo.azurewebsites.net/api/membresias/solicitardatos")
-                //{
-                //    Method = Method.GET,
-                //    RequestFormat = DataFormat.Json
-                //};
-                //membershipRequest.AddQueryParameter("id", "9");
-                //var membershipResponse = await _client.ExecuteGetTaskAsync(membershipRequest);
-
-                //if (membershipResponse.StatusCode == System.Net.HttpStatusCode.OK)
-                //{
-                //    var Membership = JsonConvert.DeserializeObject<Membresia>(membershipResponse.Content);
-
-                //    //Generar Puntos
-                //    var pointsRequest = new RestRequest("https://membresiascomplejo.azurewebsites.net/api/membresias/GenerarPuntos")
-                //    {
-                //        Method = Method.POST,
-                //        RequestFormat = DataFormat.Json
-                //    };
-
-                //    var pointsModel = new
-                //    {
-                //        Id_Membresia = Convert.ToInt32(venta.Codigo_Cliente),
-                //        Id_Punto_Venta = 1,
-                //        Puntos_Generados = venta.Puntos
-                //    };
-
-                //    pointsRequest.AddJsonBody(pointsModel);
-                //    var pointsResponse = await _client.ExecutePostTaskAsync(pointsRequest);
-
-                //    if (pointsResponse.StatusCode != System.Net.HttpStatusCode.OK)
-                //        return BadRequest("Ocurrio un error al momento de generar los puntos");
-
-                //Banquito
-                var bankRequest = new RestRequest("http://138.68.6.44:8000/api/transacciones/transferencias/")
+                if (venta.helper)
                 {
-                    Method = Method.POST,
-                    RequestFormat = DataFormat.Json,
-                };
+                    //Banquito
+                    var bankRequest = new RestRequest("http://138.68.6.44:8000/api/transacciones/transferencias/")
+                    {
+                        Method = Method.POST,
+                        RequestFormat = DataFormat.Json,
+                    };
 
-                var bankModel = new
-                {
-                    tarjeta_origen = "5050543614668653",
-                    tarjeta_destino = "5050464168614617",
-                    cvv = "078",
-                    fecha_vencimiento = "12/21",
-                    monto = venta.Total
-                };
+                    var bankModel = new
+                    {
+                        venta.tarjeta_origen,
+                        tarjeta_destino = "5050464168614617",
+                        venta.cvv,
+                        venta.fecha_vencimiento,
+                        monto = venta.Total
+                    };
 
-                bankRequest.AddJsonBody(bankModel);
-                var bankResponse = await _client.ExecutePostTaskAsync(bankRequest);
+                    bankRequest.AddJsonBody(bankModel);
+                    var bankResponse = await _client.ExecutePostTaskAsync(bankRequest);
 
-                if (bankResponse.StatusCode != System.Net.HttpStatusCode.OK)
-                    return BadRequest("Ocurrio un error al momento de la transaccion");
+                    if (bankResponse.StatusCode != System.Net.HttpStatusCode.OK)
+                        return BadRequest("Ocurrio un error al momento de la transaccion");
 
-                //Banquito
+                    //Banquito
+                }
 
                 bool Registred = await _apiServices.RegisterSale(venta);
 

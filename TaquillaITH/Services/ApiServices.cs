@@ -277,7 +277,7 @@ namespace TaquillaITH.Services
         {
             try
             {
-                var MovieSchedule = Convert.ToDateTime(venta.Fecha);
+                var MovieSchedule = Convert.ToDateTime(venta?.Fecha ?? DateTime.Now.ToString());
                 List<Sale> ventas = new List<Sale>();
 
                 foreach (var item in venta.Productos)

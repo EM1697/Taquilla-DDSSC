@@ -11,6 +11,13 @@ namespace TaquillaITH.ViewModels
 {
     public class TicketSaleViewModel
     {
+        public bool helper { get; set; }
+        public string cvv { get; set; }
+        public string mes { get; set; }
+        public string ano { get; set; }
+        public string tarjeta_origen { get; set; }
+        public string fecha_vencimiento { get => $"{mes}/{ano}"; }
+
         public string Numero_Venta { get; set; }
         public string Codigo_Cliente { get; set; }
         public int Numero_Transaccion { get; set; }

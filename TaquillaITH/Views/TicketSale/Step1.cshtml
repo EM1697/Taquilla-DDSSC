@@ -2,6 +2,10 @@
 @{
     ViewData["Title"] = "Venta de boletos";
     DateTime CurrentDate = (DateTime)ViewData["CurrentDate"];
+
+    var precioNormal = (int)ViewData["precioNormal"] == 0 ? 50 : ViewData["precioNormal"];
+    var precio3D = (int)ViewData["precio3D"] == 0 ? 50 : ViewData["precio3D"];
+    var precioVIP = (int)ViewData["precioVIP"] == 0 ? 50 : ViewData["precioVIP"];
 }
 <div id="Step1">
     <div class="text-center container">
@@ -28,23 +32,23 @@
                 {
                     <div class="col-5 mt-2 mb-2 ml-2 mr-2" style="border: solid black 2px;">
                         <h1> @item.Name </h1>
-                        <img src="@item.PhotoUrl" width="350" height="600" />
+                        <img src="@item.photoUrl" width="350" height="600" />
                         <br />
                         @foreach (var schedule in item.horarios)
                         {
                             var horario = schedule;
-                            <button type="button" value="@schedule" class="btn btn-primary mt-2 ml-2" onclick="ToggleSelect(@item.Id, '@horario')"
-                                    data-toggle="button" aria-pressed="false" autocomplete="off" id="MovieId-@item.Id">
+                            <button type="button" value="@schedule" class="btn btn-primary mt-2 ml-2" onclick="ToggleSelect(@item.duracion, '@horario', '@item.pelicula','@item.sala')"
+                                    data-toggle="button" aria-pressed="false" autocomplete="off" id="MovieId-@item.duracion">
                                 @schedule
                             </button>
                         }
                         <br />
-                        <div id="@item.Id" class="mt-2 SelectTicket" style="display:none;">
-                            <select id="mySelect-@item.Id">
+                        <div id="@item.duracion" class="mt-2 SelectTicket" style="display:none;">
+                            <select id="mySelect-@item.duracion">
                                 <option selected disabled>Seleccione un tipo de boleto</option>
-                                <option value="boletoNormal"> Boleto Normal</option>
-                                <option value="boleto3D"> Boleto 3D</option>
-                                <option value="boletoVIP"> Boleto VIP</option>
+                                <option value="@precioNormal"> Boleto Normal</option>
+                                <option value="@precio3D"> Boleto 3D</option>
+                                <option value="@precioVIP"> Boleto VIP</option>
                             </select>
 
                             <div class="form-group">
@@ -57,7 +61,7 @@
                             <label>Duración: @item.duracion</label>
                             <br />
 
-                            <button class="btn btn-outline-success" id="btnSelectButton" onclick="SelectShowTime(@item.Id,@item.sala)"> Seleccionar función</button>
+                            <button class="btn btn-outline-success" id="btnSelectButton" onclick="SelectShowTime(@item.duracion,@item.sala)"> Seleccionar función</button>
                         </div>
                     </div>
                     <hr />
@@ -75,9 +79,13 @@
     <partial name="_Step3">
 </div>
 
+<div id="Step4" style="display:none;">
+    <partial name="_Step4">
+</div>
+
 <script>
     var alaea = new Date(Date.parse('@CurrentDate'));
-
+    var selectedTicketType = "";
     var selectedMovieId =  0;
     var TheatreRoom =  0;
     var ticketAmount = 0;
@@ -88,11 +96,16 @@
     var conconatenadoFecha = "";
     var selectedTicket = "";
 
-    function ToggleSelect(id, schedule)
+    var selectedMovie = "";
+
+    var products = [];
+
+    function ToggleSelect(id, schedule, pelicula)
     {
         $('#' + id).toggle();
         selectedMovieId = id;
         selectedSchedule = schedule;
+        selectedMovie = pelicula;
     }
 
     $(document).ready(function () {
@@ -121,6 +134,7 @@
         var month = date.getMonth() +1;
         var year = date.getFullYear();
         var time = year + "-" + month + "-" + day + " " + "13:09:00";
+        var TotalAmount = 0;
 
         if (!alaea)
         {
@@ -210,8 +224,7 @@
 
                 $("#Step1").toggle();
                 $("#Step2").toggle();
-
-                
+                TotalAmount = ticketAmount * parseInt(selectedTicket);
             },
             error: function (data) {
                 alert(data.responseText);
@@ -219,11 +232,18 @@
         });
     }
 
-    $( "#To3rdStep" ).click(function() {
+    $("#To3rdStep").click(function () {
          $("#Step2").toggle();
          $("#Step3").toggle();
     });
 
+    $("#To4rthStep").click(function () {
+        points();
+    });
+
+     $("#FINISHED").click(function () {
+         ItsOver();
+    });
 
     function member() {
         
@@ -246,24 +266,62 @@
 
     function points() {
         var id = $("#membershipId").text();
-        var idPuntoVenta = 1;
-        var puntosGenerados = parseInt($("#membershipPoints").text()) * venta;
-
-        var membresia = {
-            Id_Membresia: id,
-            Id_Punto_Venta: idPuntoVenta,
-            Puntos_Generados: puntosGenerados
-        }
-
+        var puntosGenerados = (parseInt($("#membershipPercent").text()) / 100) * TotalAmount;
         $.ajax({
-        url: "/api/Booth/PostMembershipPoints",
-        type: 'POST',
-        data: {'membresia':membresia},
+            url: "/api/Booth/PostMembershipPoints?id_Membresia=" + id + "&puntos="+ puntosGenerados,
+            type: 'POST',
             success: function (data) {
                 $("#points").hide();
-                console.log("Success");
+                $("#Step3").toggle();
+                $("#Step4").toggle();
             }, error: function (data) {
-                alert(data);
+                console.log(data);
+            }
+        });
+    }
+
+    function ItsOver() {
+        debugger;
+        var cardNumber = $("#cardNumber").val();
+        var mes = $("#mes").val();
+        var ano = $("#ano").val();
+        var cvv = $("#cvv").val();
+
+        for (var item in seatsList) {
+            debugger;
+            var wea = {
+                "idBoleto": 107,
+                "sala": TheatreRoom,
+                "hora": selectedSchedule,
+                "pelicula": selectedMovie,
+                "name": seatsList[item],
+                "tipo": "boletoNormal",
+                "precio": parseInt(selectedTicket)
+            }
+
+            products.push(wea);
+        }
+
+        var venta = {
+            "helper": true,
+            "mes": mes,
+            "ano": ano,
+            "cvv": cvv,
+            "tarjeta_origen": cardNumber,
+            "total": TotalAmount,
+            "productos": products
+            
+        };
+
+        $.ajax({
+            url: "/api/Booth/PostTicketSale",
+            type: 'POST',
+            contentType: "application/json",
+            data: JSON.stringify(venta),
+            success: function (data) {
+                alert("En Hora buena, has concluido desarrollo de sistemas complejos de software!");
+            }, error: function (data) {
+                console.log(data);
             }
         });
     }

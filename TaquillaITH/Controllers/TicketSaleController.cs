@@ -48,6 +48,10 @@ namespace TaquillaITH.Controllers
                     RequestFormat = DataFormat.Json
                 };
 
+                var precioNormal = 0;
+                var precio3D = 0;
+                var precioVIP = 0;
+
                 //Obtener cartelera de gestion de peliculas
                 var resp = await _client.ExecuteGetTaskAsync(req);
                 List<Movie> Movies = new List<Movie>();
@@ -56,10 +60,12 @@ namespace TaquillaITH.Controllers
                     Movies = JsonConvert.DeserializeObject<List<Movie>>(resp.Content);
                 }
 
-                //var Movies = GetShowTimes(FinalDate.ToString()).ToList();
-
                 if (Movies.Any())
                 {
+                    ViewData["precioNormal"] = Movies.FirstOrDefault().precioBoletos["boletoNormal"];
+                    ViewData["precio3D"] = Movies.FirstOrDefault().precioBoletos["boleto3D"];
+                    ViewData["precioVIP"] = Movies.FirstOrDefault().precioBoletos["boletoVIP"];
+
                     ViewData["CurrentDate"] = FinalDate;
                     return View(Movies);
                 }
