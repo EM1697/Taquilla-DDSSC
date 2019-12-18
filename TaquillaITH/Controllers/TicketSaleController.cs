@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using RestSharp;
 using TaquillaITH.Data;
 using TaquillaITH.Models;
@@ -28,7 +29,7 @@ namespace TaquillaITH.Controllers
             _client = new RestClient();
         }
 
-        public IActionResult Step1(string date)
+        public async IActionResult Step1(string date)
         {
             try
             {
@@ -41,7 +42,21 @@ namespace TaquillaITH.Controllers
                 else
                     FinalDate = DateTime.Now;
 
-                var Movies = _sc.GetMovies(FinalDate).ToList();
+                var req = new RestRequest("http://taquilla2.gear.host/api/booth/GetShowTimes")
+                {
+                    Method = Method.GET,
+                    RequestFormat = DataFormat.Json
+                };
+
+                //Obtener cartelera de gestion de peliculas
+                var resp = await _client.ExecuteGetTaskAsync(req);
+                List<Movie> Movies = new List<Movie>();
+                if (resp.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    Movies = JsonConvert.DeserializeObject<List<Movie>>(resp.Content);
+                }
+
+                //var Movies = GetShowTimes(FinalDate.ToString()).ToList();
 
                 if (Movies.Any())
                 {
