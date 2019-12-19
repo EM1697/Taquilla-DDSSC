@@ -186,6 +186,20 @@
         });
     });
 
+    $("#totalAmountPay").change(function() {
+        debugger;
+        var max = TotalAmount;
+        var min = 0;
+        if ($(this).val() > max)
+        {
+            $(this).val(max);
+        }
+        else if ($(this).val() < min)
+        {
+            $(this).val(min);
+        }       
+    }); 
+
     
 
     function SelectShowTime(id, Num_sala)
@@ -264,6 +278,7 @@
                         $("#Step1").toggle();
                         $("#Step2").toggle();
                         TotalAmount = ticketAmount * parseInt(selectedTicket);
+                        $("#totalAmountPay").text(TotalAmount);
                     },
                     error: function (data) {
                         alert(data.responseText);
@@ -385,15 +400,15 @@
                 $("#movie").text(movie);                    //Listo
                 $("#runningTime").text(selectedSchedule);   //Listo
                 $("#ticketType").text(ticketType);          //Listo
-
+                debugger;
                 //Si utilizó puntos
                 if (pointFlag) {
-                    $("#points").text(pointsUsed.toString());                   
+                    $("#pointsTicket").text(pointsUsed.toString());                   
                     $("#credit").text((TotalAmount - pointsUsed).toString());   //Listo
                     $("#cash").text((TotalAmount - pointsUsed).toString());     //Listo 
                 }
                 else {
-                    $("#points").text("0");
+                    $("#pointsTicket").text("0");
                     $("#cash").text(TotalAmount.toString());
                     $("#credit").text(TotalAmount.toString());
                 }
