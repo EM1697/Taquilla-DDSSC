@@ -109,8 +109,6 @@ namespace TaquillaITH.Controllers
                 DateTime date = DateTime.Now;
                 List<Show> newShows = new List<Show>();
                 List<Movie> newMovies = new List<Movie>();
-                if (date.DayOfWeek.ToString() == "Sunday" || date.DayOfWeek.ToString() == "Monday" || date.DayOfWeek.ToString() == "Tuesday" || date.DayOfWeek.ToString() == "Wednesday")
-                {
                     newMovies = _apiServices.GetMovies(pitote); //Lista de peliculas nuevas
                     foreach (Movie movie in newMovies) //Recorrer cada pelicula
                     {
@@ -137,7 +135,7 @@ namespace TaquillaITH.Controllers
                         }
                     }
                     await _apiServices.UpdateNewShows(newShows);
-                }
+
                 //Get de Shows
                 var model = _apiServices.GetShowTimes();
                 foreach (var data in model)
