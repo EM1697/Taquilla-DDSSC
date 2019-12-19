@@ -79,6 +79,8 @@
     </div>
 </div>
 
+
+
 <div id="Step2" style="display:none;">
     <partial name="_Step2">
 </div>
@@ -89,11 +91,14 @@
 
 <div id="Step4" style="display:none;">
     <partial name="_Step4">
+    <partial name="_Step5">
 </div>
-
+<!--
 <div id="Step5" style="display:none;">
     <partial name="_Step5">
 </div>
+-->
+
 
 <script>
     var alaea = new Date(Date.parse('@CurrentDate'));
@@ -120,7 +125,7 @@
     var payment = 0;
     var pointFlag = false;
     var pointsUsed;
-
+    var credit = 0;
     function ToggleSelect(id, schedule, pelicula)
     {
         $('#' + id).toggle();
@@ -288,7 +293,7 @@
      $("#FINISHED").click(function () {
          ItsOver();
     });
-
+    debugger;
     function member() {
         textInput($("#membershipNumber"));
         var id = $("#membershipNumber").val();
@@ -317,7 +322,8 @@
             url: "/api/Booth/PostMembershipPoints?id_Membresia=" + id + "&puntos="+ puntosGenerados,
             type: 'POST',
             success: function (data) {
-                points = $("#requiredPoints");
+                points = $("#requiredPoints").val();
+                pointsUsed = $("#requiredPoints");
                 $("#points").hide();
                 $("#Step3").toggle();
                 $("#Step4").toggle();
@@ -368,7 +374,7 @@
             data: JSON.stringify(venta),
             success: function (data) {
                 alert("Compra realizada con exito");
-                $("#Step4").hide();
+                $("#finaldiv").hide();
                 $("#Step5").show();
 
                 $("#movie").text(movie);
@@ -381,7 +387,8 @@
                 $("#points").text(pointsUsed);
                 
                 $("#total").text(TotalAmount);
-
+                console.log(TotalAmount);
+                console.log(pointsUsed);
                 var pago =
                 {
                     Cash : 0,
