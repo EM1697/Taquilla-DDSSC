@@ -185,23 +185,7 @@
             }
         });
     });
-
-    $("#totalAmountPay").change(function() {
-        debugger;
-        var max = TotalAmount;
-        var min = 0;
-        if ($(this).val() > max)
-        {
-            $(this).val(max);
-        }
-        else if ($(this).val() < min)
-        {
-            $(this).val(min);
-        }       
-    }); 
-
     
-
     function SelectShowTime(id, Num_sala)
     {
         movie = $("#movie-"+id).val();
@@ -309,9 +293,14 @@
         points();
     });
 
-     $("#FINISHED").click(function () {
+    $("#FINISHED").click(function () {
          ItsOver();
     });
+
+    $("#finalbtn").click(function () {
+        location.href("/TicketSale/Step1");
+    });
+
     debugger;
     function member() {
         textInput($("#membershipNumber"));
@@ -334,23 +323,30 @@
     }
 
     function points() {
-        textInput($("#requiredPoints"));
-        var id = $("#membershipId").text();
-        var puntosGenerados = (parseInt($("#membershipPercent").text()) / 100) * TotalAmount;
-        $.ajax({
-            url: "/api/Booth/PostMembershipPoints?id_Membresia=" + id + "&puntos="+ puntosGenerados,
-            type: 'POST',
-            success: function (data) {
-                pointFlag = true;
-                points = $("#requiredPoints").val();
-                pointsUsed = $("#requiredPoints").val();
-                $("#points").hide();
-                $("#Step3").toggle();
-                $("#Step4").toggle();
-            }, error: function (data) {
-                console.log(data);
-            }
-        });
+        if($("#requiredPoints").val() <= TotalAmount)
+        {
+            textInput($("#requiredPoints"));
+            var id = $("#membershipId").text();
+            var puntosGenerados = (parseInt($("#membershipPercent").text()) / 100) * TotalAmount;
+            $.ajax({
+                url: "/api/Booth/PostMembershipPoints?id_Membresia=" + id + "&puntos="+ puntosGenerados,
+                type: 'POST',
+                success: function (data) {
+                    pointFlag = true;
+                    points = $("#requiredPoints").val();
+                    pointsUsed = $("#requiredPoints").val();
+                    $("#points").hide();
+                    $("#Step3").toggle();
+                    $("#Step4").toggle();
+                }, error: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+        else{
+            alert("Favor de poner una cantidad menor o igual a la cantidad a pagar.");
+        }
+        
     }
 
     function ItsOver() {
