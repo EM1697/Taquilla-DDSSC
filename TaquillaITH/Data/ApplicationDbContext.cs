@@ -22,5 +22,6 @@ namespace TaquillaITH.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Seat> Seats { get; set; }
         public DbSet<Show> Shows { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
     }
 }

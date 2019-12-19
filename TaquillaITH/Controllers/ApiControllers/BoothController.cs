@@ -343,11 +343,28 @@ namespace TaquillaITH.Controllers
                     Sale sale = new Sale();
 
 
-                                                                 bankRequest.AddJsonBody(bankModel);
+                    bankRequest.AddJsonBody(bankModel);
                     var bankResponse = await _client.ExecutePostTaskAsync(bankRequest);
 
-                    if (bankResponse.StatusCode != System.Net.HttpStatusCode.OK)
-                        return BadRequest("Ocurrio un error al momento de la transaccion");
+                    if (bankResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        var Transaction = new Transaction
+                        {
+                            SenderFourDigits = bankModel.tarjeta_origen.Substring(bankModel.tarjeta_origen.Length - 4),
+                            ReceiverFourDigits = bankModel.tarjeta_destino.Substring(bankModel.tarjeta_destino.Length - 4),
+                            Amount = Convert.ToDecimal(venta.Total),
+                            TransactionDate = DateTime.Now,
+                            CreationDate = DateTime.Now,
+                            LastUpdate = DateTime.Now
+                        };
+    
+                        bool response = await _apiServices.GenerateTransaction(Transaction);
+                        if (!response)
+                            return BadRequest("Ocurrio un error al momento de guardar la transaccion");
+
+                    }
+                    else
+                        return BadRequest("Ocurrio un error al momento de la transaccion con el banco");
 
                     //Banquito
 

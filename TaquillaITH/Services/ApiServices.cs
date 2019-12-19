@@ -259,6 +259,20 @@ namespace TaquillaITH.Services
             }
         }
 
+        public async Task<bool> GenerateTransaction(Transaction transaction)
+        {
+            try
+            {
+                _db.Transactions.Add(transaction);
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> RegisterDaySales(DaySales sales)
         {
             try
