@@ -17,6 +17,9 @@ namespace TaquillaITH.Models
         public virtual Payment Payment { get; set; }
         public int? DaySalesId { get; set; }
         public virtual DaySales DaySales { get; set; }
+        public List<Product> Products { get; set; }
+        public int TotalAmount { get; set; }
+
     }
 }
 
