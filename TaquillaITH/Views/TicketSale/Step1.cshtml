@@ -47,9 +47,9 @@
                         <div id="@item.duracion" class="mt-2 SelectTicket" style="display:none;">
                             <select id="mySelect-@item.duracion">
                                 <option selected disabled>Seleccione un tipo de boleto</option>
-                                <option value="@precioNormal"> Boleto Normal</option>
-                                <option value="@precio3D"> Boleto 3D</option>
-                                <option value="@precioVIP"> Boleto VIP</option>
+                                <option value="@precioNormal">Boleto Normal</option>
+                                <option value="@precio3D">Boleto 3D</option>
+                                <option value="@precioVIP">Boleto VIP</option>
                             </select>
 
                             <div class="form-group">
@@ -412,7 +412,7 @@
                 "mes": mes,
                 "tarjeta_origen": cardNumber,
                 "Codigo_Cliente": userMembershipId,
-                "Puntos": pointsUsed,
+                "Puntos": parseInt(pointsUsed),
                 "Nombre_Cliente": cardHolder,
                 "productos": products,
                 "total": TotalAmount
@@ -485,26 +485,6 @@
                 }
 
                 $("#total").text(TotalAmount.toString());   //Listo
-
-
-                //var pago =
-                //{
-                //    Cash : 0,
-                //    CreditCard : TotalAmount - pointsUsed,
-                //    RewardPoints : pointsUsed
-                //}
-
-                //$.ajax({
-                //    url: "/api/Payment",
-                //    type: 'POST',
-                //    contentType: "application/json",
-                //    data: {'pago':pago},
-                //    success: function (data) {
-                //        alert("Pago exitoso");
-                //    }, error: function (data) {
-                //        console.log(data);
-                //    }
-                //});
             }, error: function (data) {
                 console.log(data);
             }

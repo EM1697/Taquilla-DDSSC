@@ -325,48 +325,50 @@ namespace TaquillaITH.Controllers
             {
                 if (venta.helper)
                 {
-                    //Banquito
-                    var bankRequest = new RestRequest("http://138.68.6.44:8000/api/transacciones/transferencias/")
+                    if (venta.usedCredit)
                     {
-                        Method = Method.POST,
-                        RequestFormat = DataFormat.Json,
-                    };
+                        if (venta.pointFlag)
+                            venta.Total -= venta.Puntos;
 
-                    var bankModel = new
-                    {
-                        venta.tarjeta_origen,
-                        tarjeta_destino = "5050464168614617",
-                        venta.cvv,
-                        venta.fecha_vencimiento,
-                        monto = venta.Total
-                    };
-                    Sale sale = new Sale();
-
-
-                    bankRequest.AddJsonBody(bankModel);
-                    var bankResponse = await _client.ExecutePostTaskAsync(bankRequest);
-
-                    if (bankResponse.StatusCode == System.Net.HttpStatusCode.OK)
-                    {
-                        var Transaction = new Transaction
+                        //Banquito
+                        var bankRequest = new RestRequest("http://138.68.6.44:8000/api/transacciones/transferencias/")
                         {
-                            SenderFourDigits = bankModel.tarjeta_origen.Substring(bankModel.tarjeta_origen.Length - 4),
-                            ReceiverFourDigits = bankModel.tarjeta_destino.Substring(bankModel.tarjeta_destino.Length - 4),
-                            Amount = Convert.ToDecimal(venta.Total),
-                            TransactionDate = DateTime.Now,
-                            CreationDate = DateTime.Now,
-                            LastUpdate = DateTime.Now
+                            Method = Method.POST,
+                            RequestFormat = DataFormat.Json,
                         };
+
+                        var bankModel = new
+                        {
+                            venta.tarjeta_origen,
+                            tarjeta_destino = "5050464168614617",
+                            venta.cvv,
+                            venta.fecha_vencimiento,
+                            monto = venta.Total
+                        };
+                        Sale sale = new Sale();
+
+                        bankRequest.AddJsonBody(bankModel);
+                        var bankResponse = await _client.ExecutePostTaskAsync(bankRequest);
+                        if (bankResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            var Transaction = new Transaction
+                            {
+                                SenderFourDigits = $"XXXX XXXX XXXX {bankModel.tarjeta_origen.Substring(bankModel.tarjeta_origen.Length - 4)}",
+                                ReceiverFourDigits = $"XXXX XXXX XXXX {bankModel.tarjeta_destino.Substring(bankModel.tarjeta_destino.Length - 4)}",
+                                Amount = Convert.ToDecimal(venta.Total),
+                                TransactionDate = DateTime.Now,
+                                CreationDate = DateTime.Now,
+                                LastUpdate = DateTime.Now
+                            };
     
-                        bool response = await _apiServices.GenerateTransaction(Transaction);
-                        if (!response)
-                            return BadRequest("Ocurrio un error al momento de guardar la transaccion");
-
+                            var TransactionId = await _apiServices.GenerateTransaction(Transaction);
+                            if (TransactionId == 0)
+                                return BadRequest("Ocurrio un error al momento de guardar la transaccion");
+                            venta.TransactionId = TransactionId;
+                        }
+                        else
+                            return BadRequest("Ocurrio un error al momento de la transaccion con el banco");
                     }
-                    else
-                        return BadRequest("Ocurrio un error al momento de la transaccion con el banco");
-
-                    //Banquito
 
                     var seatsRequest = new RestRequest("https://taquilla2.gear.host/api/booth/SelectShowSeats/")
                     {
@@ -395,9 +397,6 @@ namespace TaquillaITH.Controllers
                     return BadRequest("No se pudo guardar la venta debido a un error en el servidor");
 
                 return Ok();
-                //}
-                //else
-                //    return BadRequest("Error al cargar la membresia");
             }
             catch (Exception ex)
             {

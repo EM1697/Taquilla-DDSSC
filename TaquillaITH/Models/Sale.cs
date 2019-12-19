@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using CineTaquilla.Helpers;
@@ -17,8 +18,11 @@ namespace TaquillaITH.Models
         public virtual Payment Payment { get; set; }
         public int? DaySalesId { get; set; }
         public virtual DaySales DaySales { get; set; }
-        public List<Product> Products { get; set; }
+        public List<Ticket> Products { get; set; }
         public int TotalAmount { get; set; }
+
+        public int? TransactionId { get; set; }
+        public virtual Transaction Transaction { get; set; }
 
     }
 }

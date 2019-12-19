@@ -259,17 +259,20 @@ namespace TaquillaITH.Services
             }
         }
 
-        public async Task<bool> GenerateTransaction(Transaction transaction)
+        public async Task<int> GenerateTransaction(Transaction transaction)
         {
             try
             {
+                int transactionId = 0;
                 _db.Transactions.Add(transaction);
                 await _db.SaveChangesAsync();
-                return true;
+
+                transactionId = transaction.Id;
+                return transactionId;
             }
             catch (Exception)
             {
-                return false;
+                return 0;
             }
         }
 
@@ -291,32 +294,56 @@ namespace TaquillaITH.Services
         {
             try
             {
-                var MovieSchedule = Convert.ToDateTime(venta?.Fecha ?? DateTime.Now.ToString());
-                List<Sale> ventas = new List<Sale>();
+                var MovieSchedule = Convert.ToDateTime(venta?.schedule ?? DateTime.Now.ToString());
+                var Horario = MovieSchedule.Hour.ToString();
+                string pelicula = "";
 
+
+                List<Ticket> tickets = new List<Ticket>();
                 foreach (var item in venta.Productos)
                 {
-                    var VentaCrack = new Sale
+                    
+                    var TicketVendido = new Ticket
                     {
-                        CreationDate = DateTime.Now,
-                        LastUpdate = DateTime.Now,
-                        SaleDate = DateTime.Now,
-                        Time = item.Hora,
+                        BoletoId = Convert.ToInt32(GetTicketType(item.Tipo)),
                         TipoBoletoId = GetTicketType(item.Tipo),
-                        Payment = new Payment
-                        {
-                            Cash = Convert.ToDecimal(item.Precio)
-                        },
-                        MovieName = item.Pelicula
+                        Sala = item.Sala,
+                        Hora = item.Hora,
+                        NombrePelicula = item.Pelicula,
+                        Asiento = item.Name,
+                        Price = Convert.ToInt32(item.Precio),
+                        CreationDate = DateTime.Now,
+                        LastUpdate = DateTime.Now
                     };
-                    ventas.Add(VentaCrack);
+                    pelicula = item.Pelicula;
+                    tickets.Add(TicketVendido);
+                    
                 }
+                var VentaCrack = new Sale
+                {
+                    TransactionId = venta.TransactionId,
+                    CreationDate = DateTime.Now,
+                    LastUpdate = DateTime.Now,
+                    SaleDate = DateTime.Now,
+                    Time = Horario,
+                    Payment = new Payment
+                    {
+                        Cash = venta.cash,
+                        CreditCard = venta.credit,
+                        RewardPoints = venta.Puntos,
+                        LastUpdate = DateTime.Now,
+                        CreationDate = DateTime.Now
+                    },
+                    MovieName = pelicula
+                };
 
-                _db.Sales.AddRange(ventas);
+                _db.Tickets.AddRange(tickets);
+                _db.Sales.Add(VentaCrack);
+
                 await _db.SaveChangesAsync();
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return false;
             }
@@ -326,36 +353,26 @@ namespace TaquillaITH.Services
         {
             switch (Boleto)
             {
-                case "boletoVIP":
+                case "Boleto VIP":
                     return TicketType.VipTicket;
-                case "boleto3D":
+                case "Boleto 3D":
                     return TicketType.Ticket3D;
-                case "boletoNormal":
+                case "Boleto Normal":
                     return TicketType.NormalTicket;
                 default:
                     return TicketType.NormalTicket;
             }
         }
 
-        [HttpPost("Payment")]
-        public async Task<bool> Payment(Payment pago)
+        public async Task<bool> GeneratePayment(Payment pago)
         {
             try
             {
-                var pagueme = new Payment
-                {
-                    CreationDate = DateTime.Now,
-                    LastUpdate = DateTime.Now,
-                    Cash = pago.Cash,
-                    CreditCard = pago.CreditCard,
-                    RewardPoints = pago.RewardPoints
-                };
-
-                _db.Payments.Add(pagueme);
+                _db.Payments.Add(pago);
                 await _db.SaveChangesAsync();
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return false;
             }

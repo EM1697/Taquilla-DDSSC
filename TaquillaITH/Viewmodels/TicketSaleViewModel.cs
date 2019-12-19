@@ -11,9 +11,17 @@ namespace TaquillaITH.ViewModels
 {
     public class TicketSaleViewModel
     {
+        public bool usedCredit { get; set; }
+        public bool pointFlag { get; set; }
+
+        public int cash { get; set; }
+        public int credit { get; set; }
+
+
         public bool helper { get; set; }
         public int sala { get; set; }
         public string schedule { get; set; }
+        public string hora { get; set; }
         public List<string> UsedSeats { get; set; }
 
         public string cvv { get; set; }
@@ -26,6 +34,7 @@ namespace TaquillaITH.ViewModels
         public string Codigo_Cliente { get; set; }
         public int Numero_Transaccion { get; set; }
         public int Puntos { get; set; }
+        public int TransactionId { get; set; }
         public string Fecha { get; set; }
         public string Nombre_Cliente { get; set; }
         public List<Producto> Productos { get; set; }
