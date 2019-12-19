@@ -44,16 +44,4 @@ namespace CineTaquilla.Helpers
         [Display(Name = "Boleto VIP")]
         VipTicket = 2,
     }
-
-    public enum SeatStatus
-    {
-        [Display(Name = "Libre")]
-        Free = 0,
-
-        [Display(Name = "Ocupado")]
-        Taken = 1,
-
-        [Display(Name = "Bloqueado")]
-        Blocked = 2
-    }
 }
