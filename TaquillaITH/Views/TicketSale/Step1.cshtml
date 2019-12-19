@@ -110,10 +110,8 @@
     var puntosDisponibles = 0;
     var showDate = "";
     var selectedSchedule = "";
-
     var conconatenadoFecha = "";
     var selectedTicket = "";
-
     var selectedMovie = "";
 
     var products = [];
@@ -126,9 +124,10 @@
     var pointsUsed;
     var credit = 0;
     var ticketType;
-    var usedCredit = false;
+    var usedCredit = true;
     var pointFlag = false;
-
+    var cardHolder = "";
+    var userMembershipId = 0;
     function ToggleSelect(id, schedule, pelicula)
     {
         $('#' + id).toggle();
@@ -186,6 +185,22 @@
         });
     });
     
+
+    $("#cashInput").change(function(){
+        if($("#cashInput").val() < TotalAmount){
+            $("#cashInput").css("border-color", "red");
+            $("#cashInput").css("color", "red");
+            $("#CashChange").css("color", "red");
+            $("#CashChange").text("Valor insuficiente");
+        }
+        else{
+            $("#cashInput").css("border-color", "black");
+            $("#cashInput").css("color", "black");
+            $("#CashChange").css("color", "black");
+            $("#CashChange").text(($("#cashInput").val()).toString() - TotalAmount);
+        }
+    });
+
     function SelectShowTime(id, Num_sala)
     {
         movie = $("#movie-"+id).val();
@@ -263,6 +278,7 @@
                         $("#Step2").toggle();
                         TotalAmount = ticketAmount * parseInt(selectedTicket);
                         $("#totalAmountPay").text(TotalAmount);
+                        $("#totalAmountPayCash").text(TotalAmount);
                     },
                     error: function (data) {
                         alert(data.responseText);
@@ -285,6 +301,7 @@
     });
 
     $("#skipMembership").click(function () {
+        $("#creditFund").text(TotalAmount.toString());
         $("#Step3").toggle();
         $("#Step4").toggle();
     });
@@ -300,6 +317,14 @@
     $("#finalbtn").click(function () {
         location.href("/TicketSale/Step1");
     });
+
+    function paymentMethod(){
+        $("#creditBlock").toggle();
+        $("#cashBlock").toggle();
+        $("#cashbtn").toggle();
+        $("#creditbtn").toggle();
+        usedCredit = !usedCredit;
+    };
 
     debugger;
     function member() {
@@ -317,6 +342,8 @@
                 $("#membershipPoints").text(data.puntos);
                 $("#membershipPercent").text(data.porcentaje);
                 puntosDisponibles = data.puntos;
+                cardHolder = $("#membershipOwner").text();
+                userMembershipId = $("#membershipId").text();
                 console.log("Success");
             }
         });
@@ -332,6 +359,7 @@
                 url: "/api/Booth/PostMembershipPoints?id_Membresia=" + id + "&puntos="+ puntosGenerados,
                 type: 'POST',
                 success: function (data) {
+                    $("#creditFund").text(TotalAmount.toString());
                     pointFlag = true;
                     points = $("#requiredPoints").val();
                     pointsUsed = $("#requiredPoints").val();
@@ -350,39 +378,79 @@
     }
 
     function ItsOver() {
-        debugger;
-        var cardNumber = $("#cardNumber").val();
-        var mes = $("#mes").val();
-        var ano = $("#ano").val();
-        var cvv = $("#cvv").val();
+        if(usedCredit){
+            var cardNumber = $("#cardNumber").val();
+            var mes = $("#mes").val();
+            var ano = $("#ano").val();
+            var cvv = $("#cvv").val();
 
-        for (var item in seatsList) {
-            var wea = {
-                "idBoleto": 107,
-                "sala": TheatreRoom,
-                "hora": selectedSchedule,
-                "pelicula": selectedMovie,
-                "name": seatsList[item],
-                "tipo": "boletoNormal",
-                "precio": parseInt(selectedTicket)
+            for (var item in seatsList) {
+                var wea = {
+                    "sala": TheatreRoom,
+                    "hora": selectedSchedule,
+                    "pelicula": selectedMovie,
+                    "name": seatsList[item],
+                    "tipo": ticketType,
+                    "precio": parseInt(selectedTicket)
+                }
+
+                products.push(wea);
             }
 
-            products.push(wea);
+            var venta = {
+                "usedCredit": usedCredit,
+                "pointFlag": pointFlag,
+                "cash": 0,
+                "credit": (TotalAmount - pointsUsed),
+                "helper": true,
+                "sala": TheatreRoom,
+                "schedule": Judir + " " + selectedSchedule,
+                "hora": selectedSchedule,
+                "UsedSeats": seatsList,
+                "cvv": cvv,
+                "ano": ano,
+                "mes": mes,
+                "tarjeta_origen": cardNumber,
+                "Codigo_Cliente": userMembershipId,
+                "Puntos": pointsUsed,
+                "Nombre_Cliente": cardHolder,
+                "productos": products,
+                "total": TotalAmount
+            };
+        }
+        else{
+            var cardNumber = 1234567890123456;
+            var mes = 01;
+            var ano = 21;
+            var cvv = 333;
+
+            for (var item in seatsList) {
+                var wea = {
+                    "idBoleto": 107,
+                    "sala": TheatreRoom,
+                    "hora": selectedSchedule,
+                    "pelicula": selectedMovie,
+                    "name": seatsList[item],
+                    "tipo": selectedTicketType,
+                    "precio": parseInt(selectedTicket)
+                }
+                products.push(wea);
+            }
+
+            var venta = {
+                "helper": true,
+                "sala": TheatreRoom,
+                "schedule": Judir + " " + selectedSchedule,
+                "UsedSeats": seatsList,
+                "mes": mes,
+                "ano": ano,
+                "cvv": cvv,
+                "tarjeta_origen": cardNumber,
+                "total": TotalAmount,
+                "productos": products
+            };
         }
 
-        var venta = {
-            "helper": true,
-            "sala": TheatreRoom,
-            "schedule": Judir + " " + selectedSchedule,
-            "UsedSeats": seatsList,
-            "mes": mes,
-            "ano": ano,
-            "cvv": cvv,
-            "tarjeta_origen": cardNumber,
-            "total": TotalAmount,
-            "productos": products
-        };
-        usedCredit = true;
         $.ajax({
             url: "/api/Booth/PostTicketSale",
             type: 'POST',

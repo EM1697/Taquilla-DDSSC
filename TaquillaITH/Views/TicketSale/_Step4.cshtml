@@ -2,6 +2,7 @@
   <div class="card-body col-12">
     <div id="PaymentCard">
         <blockquote class="blockquote mb-0 align-items-center">
+          <div id="creditBlock">
             <p>Ingrese su número de membresía</p>
             <input type="text" class="form-control col-12 col-xl-12" id="cardNumber" placeholder="Numero de Tarjeta" maxlength="16">
             <br />
@@ -10,7 +11,21 @@
             <input type="text" class="form-control col-12 col-xl-12" id="ano" placeholder="YY" maxlength="2">
             <br />
             <input type="text" class="form-control col-12 col-xl-12" id="cvv" placeholder="CVV">
-            <button class="col-6 col-xl-6 btn btn-light mt-2 align-self-end" id="FINISHED">Continuar</button>
+            <footer class="blockquote-footer">Se liquidará el resto de la transacción por medio de crédito <cite>$<span id="creditFund"></span></cite></footer>
+          </div>
+
+          <div id="cashBlock" style="display:none;">
+            <p>Ingrese efectivo</p>
+            <input type="number" class="form-control col-12 col-xl-12" id="cashInput" min="0" placeholder="Ej. 40">
+            <br />
+            <p><b>Total a pagar: </b> $<span id="totalAmountPayCash"></span></p>
+            <label><b>Cambio: </b>$<span id="CashChange"></span></label>
+          </div>
+            <div class="row">
+                <button class="col-6 col-xl-6 btn btn-light mt-2 align-self-end" id="cashbtn" onclick="paymentMethod()">Efectivo</button>
+                <button class="col-6 col-xl-6 btn btn-light mt-2 align-self-end" id="creditbtn" style="display:none;" onclick="paymentMethod()">Credito</button>
+                <button class="col-6 col-xl-6 btn btn-light mt-2 align-self-end" id="FINISHED">Continuar</button>
+            </div>
         </blockquote>
       </div>
     </div>
