@@ -117,15 +117,18 @@
     var selectedMovie = "";
 
     var products = [];
-
+    var seatsList = [];
     var time = "";
     var movieName = "";
     var genre = "";
     var movie = "";
     var payment = 0;
-    var pointFlag = false;
     var pointsUsed;
     var credit = 0;
+    var ticketType;
+    var usedCredit = false;
+    var pointFlag = false;
+
     function ToggleSelect(id, schedule, pelicula)
     {
         $('#' + id).toggle();
@@ -183,7 +186,7 @@
         });
     });
 
-    var seatsList = [];
+    
 
     function SelectShowTime(id, Num_sala)
     {
@@ -192,6 +195,7 @@
         TheatreRoom = Num_sala;
         ticketAmount = $("#ticketAmount-"+id).val();
         selectedTicket = $("#mySelect-" + id + " :selected").val();
+        ticketType = $("#mySelect-" + id + " :selected").text();
 
         if ($("#mySelect-" + id + " :selected").val() != "Seleccione un tipo de boleto") {
             if ($("#mySelect-" + id + " :selected").val().length > 0 && $("#ticketAmount-"+id).val() != ""){
@@ -282,8 +286,8 @@
     });
 
     $("#skipMembership").click(function () {
-        $("#Step2").toggle();
         $("#Step3").toggle();
+        $("#Step4").toggle();
     });
 
     $("#To4rthStep").click(function () {
@@ -322,8 +326,9 @@
             url: "/api/Booth/PostMembershipPoints?id_Membresia=" + id + "&puntos="+ puntosGenerados,
             type: 'POST',
             success: function (data) {
+                pointFlag = true;
                 points = $("#requiredPoints").val();
-                pointsUsed = $("#requiredPoints");
+                pointsUsed = $("#requiredPoints").val();
                 $("#points").hide();
                 $("#Step3").toggle();
                 $("#Step4").toggle();
@@ -366,7 +371,7 @@
             "total": TotalAmount,
             "productos": products
         };
-
+        usedCredit = true;
         $.ajax({
             url: "/api/Booth/PostTicketSale",
             type: 'POST',
@@ -377,16 +382,31 @@
                 $("#finaldiv").hide();
                 $("#Step5").show();
 
-                //$("#movie").text(movie);
-                //$("#runningTime").text(selectedSchedule);
-                ////$("#cash").text(TotalAmount - pointsUsed);
-                ////$("#credit").text("0");
-                ////$("#points").text(pointsUsed);
-                //$("#cash").text("0");
-                //$("#credit").text(TotalAmount - pointsUsed);
-                //$("#points").text(pointsUsed);
-                
-                //$("#total").text(TotalAmount);
+                $("#movie").text(movie);                    //Listo
+                $("#runningTime").text(selectedSchedule);   //Listo
+                $("#ticketType").text(ticketType);          //Listo
+
+                //Si utilizó puntos
+                if (pointFlag) {
+                    $("#points").text(pointsUsed.toString());                   
+                    $("#credit").text((TotalAmount - pointsUsed).toString());   //Listo
+                    $("#cash").text((TotalAmount - pointsUsed).toString());     //Listo 
+                }
+                else {
+                    $("#points").text("0");
+                    $("#cash").text(TotalAmount.toString());
+                    $("#credit").text(TotalAmount.toString());
+                }
+                //Pago con credito o efectivo
+                if (usedCredit) {
+                    $("#cash").text("0");
+                }
+                else {
+                    $("#credit").text("0");
+                }
+
+                $("#total").text(TotalAmount.toString());   //Listo
+
 
                 //var pago =
                 //{
@@ -423,4 +443,3 @@
 }
 
 </script>
-*@
