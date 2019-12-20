@@ -9,7 +9,7 @@
 <div class="text-center container">
     <div class="row">
         <div class="col-12">
-            <h1 class="display-4">Corte del dia</h1>
+            <h1 class="display-4">Ventas del dia</h1>
         </div>
     </div>
     <div class="row mt-2 justify-content-md-center">
@@ -102,9 +102,6 @@
                         type: 'GET',
                         data: {'date':time},
                         success: function (data) {
-                            for (var item in data) {
-                                console.log(item.TotalAmount);
-                            }
                             loadData(data);
                             console.log("Success");
                             return data; 
@@ -196,40 +193,38 @@ function loadData(data){
         $("#body").empty();
 
         if(data[0] != null){
-                data.forEach(function(element){
-            var tr = document.createElement("tr");
-            var td1 = document.createElement("td");
-            var td2 = document.createElement("td");
-            var td3 = document.createElement("td");
-            var td4 = document.createElement("td");
-            var td5 = document.createElement("td");
-            var td6 = document.createElement("td");
-            var td8 = document.createElement("td");
-            var td9 = document.createElement("td");
-            var td10 = document.createElement("td");
-            td1.innerHTML =element.userId;
-            switch(element.tipoBoletoId){
-                case 0:
-                    td2.innerHTML ="Boleto normal";break;
-                case 1: 
-                    td2.innerHTML = "Boleto 3D";break;
-                case 2: 
-                    td2.innerHTML = "Boleto VIP";break;
-                    default: break;
-            }
-            
-            td3.innerHTML =element.saleDate;
-            td4.innerHTML ="$"+element.cash+".00";
-            td5.innerHTML ="$"+element.creditCard+".00";
-            td6.innerHTML =element.rewardPoints;
-            td8.innerHTML =element.name;
-            td9.innerHTML =element.time;
-            td10.innerHTML =element.runningTime+" min.";
-            tr.append(td1, td2, td3, td4, td5, td6, td8, td9, td10);
-            $("#body").append(tr);
-        }) 
+            data.forEach(function(element){
+                var tr = document.createElement("tr");
+                var td1 = document.createElement("td");
+                var td2 = document.createElement("td");
+                var td3 = document.createElement("td");
+                var td4 = document.createElement("td");
+                var td5 = document.createElement("td");
+                var td6 = document.createElement("td");
+                var td8 = document.createElement("td");
+                var td9 = document.createElement("td");
+                var td10 = document.createElement("td");
+                td1.innerHTML =element.userId;
+                switch(element.tipoBoletoId){
+                    case 0:
+                        td2.innerHTML ="Boleto normal";break;
+                    case 1: 
+                        td2.innerHTML = "Boleto 3D";break;
+                    case 2: 
+                        td2.innerHTML = "Boleto VIP";break;
+                        default: break;
+                }
+                
+                td3.innerHTML =element.saleDate;
+                td4.innerHTML ="$"+element.cash+".00";
+                td5.innerHTML ="$"+element.creditCard+".00";
+                td6.innerHTML =element.rewardPoints;
+                td8.innerHTML =element.name;
+                td9.innerHTML =element.time;
+                td10.innerHTML =element.runningTime+" min.";
+                tr.append(td1, td2, td3, td4, td5, td6, td8, td9, td10);
+                $("#body").append(tr);
+            }) 
+        }
     }
-    }
-
-
 </script>

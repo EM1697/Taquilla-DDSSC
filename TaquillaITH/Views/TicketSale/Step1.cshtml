@@ -37,7 +37,8 @@
                         @foreach (var schedule in item.horarios)
                         {
                             var horario = schedule;
-                            <button type="button" value="@schedule" class="btn btn-primary mt-2 ml-2" onclick="ToggleSelect(@item.duracion, '@horario', '@item.pelicula','@item.sala')"
+                            <button type="button" value="@schedule" class="btn btn-primary mt-2 ml-2" onclick="ToggleSelect('@item.duracion', '@horario', '@item.pelicula','@item.sala')"
+                            @* <button type="button" value="@schedule" class="btn btn-primary mt-2 ml-2" onclick="this.ToggleSelect()" *@
                                     data-toggle="button" aria-pressed="false" autocomplete="off" id="MovieId-@item.duracion">
                                 @schedule
                             </button>
@@ -128,6 +129,7 @@
     var pointFlag = false;
     var cardHolder = "";
     var userMembershipId = 0;
+
     function ToggleSelect(id, schedule, pelicula)
     {
         $('#' + id).toggle();
@@ -228,8 +230,6 @@
                         "Horario": date
                     },
                     success: function (data) {
-                        console.log(data);
-
                         data.forEach(function (element) {
                             var tr = document.createElement("div");
 
@@ -243,14 +243,12 @@
                                     {
                                         seatsList.push(dato.name);
                                             $(this).css("background", "pink");
-                                        console.log(seatsList);
 
                                 
                                     }
                                     else if (seatsList.includes(this.innerHTML)) {
                                         seatsList.splice(seatsList.indexOf(dato.name), 1);
                                         $(this).css("background", "white");
-                                        console.log(seatsList);
                                     }
 
                                     if (seatsList.length == ticketAmount) {
@@ -326,7 +324,6 @@
         usedCredit = !usedCredit;
     };
 
-    debugger;
     function member() {
         textInput($("#membershipNumber"));
         var id = $("#membershipNumber").val();
@@ -344,7 +341,6 @@
                 puntosDisponibles = data.puntos;
                 cardHolder = $("#membershipOwner").text();
                 userMembershipId = $("#membershipId").text();
-                console.log("Success");
             }
         });
     }
@@ -367,7 +363,6 @@
                     $("#Step3").toggle();
                     $("#Step4").toggle();
                 }, error: function (data) {
-                    console.log(data);
                 }
             });
         }
@@ -379,10 +374,6 @@
 
     function ItsOver() {
         if(usedCredit){
-            if()
-            {
-                
-            }
             var cardNumber = $("#cardNumber").val();
             var mes = $("#mes").val();
             var ano = $("#ano").val();
@@ -415,7 +406,6 @@
                 "ano": ano,
                 "mes": mes,
                 "tarjeta_origen": cardNumber,
-                "Codigo_Cliente": userMembershipId,
                 "Puntos": parseInt(pointsUsed),
                 "Nombre_Cliente": cardHolder,
                 "productos": products,
@@ -454,7 +444,7 @@
                 "productos": products
             };
         }
-
+        debugger;
         $.ajax({
             url: "/api/Booth/PostTicketSale",
             type: 'POST',
@@ -490,7 +480,6 @@
 
                 $("#total").text(TotalAmount.toString());   //Listo
             }, error: function (data) {
-                console.log(data);
             }
 
         });
